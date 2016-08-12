@@ -1,0 +1,10 @@
+@{ ModuleVersion     = "1.0.0"    
+   Author            = "Dan Ward"
+   CompanyName       = "DTWConsulting.com"
+   Copyright         = "Copyright 2012"
+   Description       = "File system and encoding functionality"
+   GUID              = "{B080321E-1D73-410F-9EBA-7F3D4C3D7840}"
+   PowerShellVersion = "2.0"
+   CLRVersion        = "2.0"
+   NestedModules     = "DTW.PS.FileSystem.Encoding.psm1"
+}
