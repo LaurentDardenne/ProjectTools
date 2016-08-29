@@ -4,7 +4,7 @@
 
  #Un fichier, exemple un module 
  #( le code est assemblé )
-$Module='..\Test\Plaster\Plaster.psm1' 
+$Module='..\Test\Log4Posh\Log4Posh.psm1'
 $ILD=Search-ASTImportLocalizedData -Path $Module|
       Update-ASTLocalizedData -passthru 
 
