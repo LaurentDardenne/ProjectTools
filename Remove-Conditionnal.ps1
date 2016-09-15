@@ -1,4 +1,22 @@
-﻿#Remove-Conditionnal.ps1
+﻿<#PSScriptInfo
+
+.VERSION 1.3
+.GUID b008c544-06e1-4a24-80df-f7a3e55a479b
+.AUTHOR Laurent Dardenne
+.COMPANYNAME
+.COPYRIGHT CopyLeft
+.TAGS Replace Regex Template String Conditionnal Parsing
+.LICENSEURI https://creativecommons.org/licenses/by-nc-sa/4.0
+.PROJECTURI https://github.com/LaurentDardenne/ProjectTools
+.ICONURI
+.EXTERNALMODULEDEPENDENCIES
+.REQUIREDSCRIPTS
+.EXTERNALSCRIPTDEPENDENCIES
+.RELEASENOTES  version 1.3  27 janvier 2014
+
+.DESCRIPTION Supprime dans un fichier source toutes les lignes placées entre deux directives de 'parsing conditionnal', tels que #<DEFINE %DEBUG%> et  #<UNDEF %DEBUG%>. Il est également possible d'inclure des fichiers,  de décommenter des lignes de commentaires ou de supprimer des lignes. 
+#>
+
 Function Remove-Conditionnal {
 <#
 .SYNOPSIS

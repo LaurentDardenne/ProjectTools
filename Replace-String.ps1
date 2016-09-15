@@ -1,246 +1,250 @@
-#requires -version 2.0
-##########################################################################
-#                               Add-Lib V2
-#
-# Version : 1.1.0
-#
-# Date    : 22 août 2010
-#
-# Nom     : Replace-String.ps1
-#
-# Usage   : . .\Replace-String.ps1; Replace-String -?
-#
-##########################################################################
+ï»¿<#PSScriptInfo
+
+.VERSION 1.1.0
+.GUID 9fcc3ac5-5135-4c0c-bed3-f0e8e7aedb84
+.AUTHOR Laurent Dardenne
+.COMPANYNAME
+.COPYRIGHT CopyLeft
+.TAGS Replace Regex Template String
+.LICENSEURI https://creativecommons.org/licenses/by-nc-sa/4.0
+.PROJECTURI https://github.com/LaurentDardenne/ProjectTools
+.ICONURI
+.EXTERNALMODULEDEPENDENCIES
+.REQUIREDSCRIPTS
+.EXTERNALSCRIPTDEPENDENCIES
+.RELEASENOTES 22 aoÃ»t 2010
+.DESCRIPTION  Remplace toutes les occurrences d'un modÃ¨le de caractÃ¨re, dÃ©fini par une chaÃ®ne de caractÃ¨re simple ou par une expression rÃ©guliÃ¨re, par une chaÃ®ne de caractÃ¨res de remplacement.
+#>
 Function Replace-String{
 <#
 .SYNOPSIS
-    Remplace toutes les occurrences d'un modèle de caractère, défini par 
-    une chaîne de caractère simple ou par une expression régulière, par une 
-    chaîne de caractères de remplacement.
+    Remplace toutes les occurrences d'un modÃ¨le de caractÃ¨re, dÃ©fini par 
+    une chaÃ®ne de caractÃ¨re simple ou par une expression rÃ©guliÃ¨re, par une 
+    chaÃ®ne de caractÃ¨res de remplacement.
  
 .DESCRIPTION
-    La fonction Replace-String remplace dans une chaîne de caractères toutes 
-    les occurrences d'une chaîne de caractères par une autre chaîne de caractères.
-    Le contenu de la chaîne recherchée peut-être soit une chaîne de caractère 
-    simple soit une expression régulière. 
+    La fonction Replace-String remplace dans une chaÃ®ne de caractÃ¨res toutes 
+    les occurrences d'une chaÃ®ne de caractÃ¨res par une autre chaÃ®ne de caractÃ¨res.
+    Le contenu de la chaÃ®ne recherchÃ©e peut-Ãªtre soit une chaÃ®ne de caractÃ¨re 
+    simple soit une expression rÃ©guliÃ¨re. 
 . 
-    Le paramétrage du modèle de caractère et de la chaîne de caractères de 
+    Le paramÃ©trage du modÃ¨le de caractÃ¨re et de la chaÃ®ne de caractÃ¨res de 
     remplacement se fait via une hashtable. Celle-ci permet un remplacement 
-    multiple sur une même chaîne de caractères. Ces multiples remplacements se 
-    font les uns à la suite des autres et pas en une seule fois.
-    Chaque opération de remplacement reçoit la chaîne résultante du 
-    remplacement précédent. 
+    multiple sur une mÃªme chaÃ®ne de caractÃ¨res. Ces multiples remplacements se 
+    font les uns Ã  la suite des autres et pas en une seule fois.
+    Chaque opÃ©ration de remplacement reÃ§oit la chaÃ®ne rÃ©sultante du 
+    remplacement prÃ©cÃ©dent. 
 
 .PARAMETER InputObject
-    Chaîne à modifier.
-    Peut référencer une valeur de type [Object], dans ce cas l'objet sera 
-    converti en [String] sauf si le paramètre -Property est renseigné.
+    ChaÃ®ne Ã  modifier.
+    Peut rÃ©fÃ©rencer une valeur de type [Object], dans ce cas l'objet sera 
+    converti en [String] sauf si le paramÃ¨tre -Property est renseignÃ©.
 
 .PARAMETER Hashtable
-    Hashtable contenant les textes à rechercher et celui de leur remplacement 
+    Hashtable contenant les textes Ã  rechercher et celui de leur remplacement 
     respectif  :
      $MyHashtable."TexteARechercher"="TexteDeRemplacement"
      $MyHashtable."AncienTexte"="NouveauTexte"
-    Sont autorisées toutes les instances de classe implémentant l'interface 
+    Sont autorisÃ©es toutes les instances de classe implÃ©mentant l'interface 
     [System.Collections.IDictionary].
 .  
 . 
-    Chaque entrée de la hashtable est une paire nom-valeur :
-     ° Le nom contient la chaîne à rechercher, c'est une simple chaîne de 
-       caractères qui peut contenir une expression régulière.
-       Il peut être de type [Object], dans ce cas l'objet sera 
-       converti en [String], même si c'est une collection d'objets.
-       Si la variable $OFS est déclarée elle sera utilisée lors de cette 
+    Chaque entrÃ©e de la hashtable est une paire nom-valeur :
+     Â° Le nom contient la chaÃ®ne Ã  rechercher, c'est une simple chaÃ®ne de 
+       caractÃ¨res qui peut contenir une expression rÃ©guliÃ¨re.
+       Il peut Ãªtre de type [Object], dans ce cas l'objet sera 
+       converti en [String], mÃªme si c'est une collection d'objets.
+       Si la variable $OFS est dÃ©clarÃ©e elle sera utilisÃ©e lors de cette 
        conversion.
-     ° La valeur contient la chaîne de remplacement et peut référencer :
-        - une simple chaîne de caractères qui peut contenir une capture 
-          nommée, exemple :
-           $HT."(Texte)"='$1 AjoutTexteSéparéParUnEspace'
-           $HT."(Groupe1Capturé)=(Groupe2Capturé)"='$2=$1' 
+     Â° La valeur contient la chaÃ®ne de remplacement et peut rÃ©fÃ©rencer :
+        - une simple chaÃ®ne de caractÃ¨res qui peut contenir une capture 
+          nommÃ©e, exemple :
+           $HT."(Texte)"='$1 AjoutTexteSÃ©parÃ©ParUnEspace'
+           $HT."(Groupe1CapturÃ©)=(Groupe2CapturÃ©)"='$2=$1' 
            $HT."(?<NomCapture>Texte)"='${NomCapture}AjoutTexteSansEspace'
-          Cette valeur peut être $null ou contenir une chaîne vide.
+          Cette valeur peut Ãªtre $null ou contenir une chaÃ®ne vide.
 .           
-          Note : Pour utiliser '$1" comme chaîne ce remplacement et non pas 
-          comme référence à une capture nommée, vous devez échapper le signe 
+          Note : Pour utiliser '$1" comme chaÃ®ne ce remplacement et non pas 
+          comme rÃ©fÃ©rence Ã  une capture nommÃ©e, vous devez Ã©chapper le signe 
           dollar ainsi '$$1'.
 .
         - un Scriptblock, implicitement de type [System.Text.RegularExpressions.MatchEvaluator] : 
-            #Remplace le caractère ':' par '<:>'
+            #Remplace le caractÃ¨re ':' par '<:>'
            $h.":"={"<$($args[0])>"}
 .          
-          Dans ce cas, pour chaque occurrence de remplacement trouvée, on 
-          évalue le remplacement en exécutant le Scriptblock qui reçoit dans 
-          $args[0] l'occurence trouvée et renvoie comme résultat une chaîne 
-          de caractères.
-          Les conversions de chaînes de caractères en dates, contenues dans
+          Dans ce cas, pour chaque occurrence de remplacement trouvÃ©e, on 
+          Ã©value le remplacement en exÃ©cutant le Scriptblock qui reÃ§oit dans 
+          $args[0] l'occurence trouvÃ©e et renvoie comme rÃ©sultat une chaÃ®ne 
+          de caractÃ¨res.
+          Les conversions de chaÃ®nes de caractÃ¨res en dates, contenues dans
           le scriptblock, se font en utilisant les informations de la 
           classe .NET InvariantCulture (US).
 .          
-          Note : En cas d'exception déclenchée dans le scriptblock, 
-          n'hésitez pas à consulter le contenu de son membre nommé 
+          Note : En cas d'exception dÃ©clenchÃ©e dans le scriptblock, 
+          n'hÃ©sitez pas Ã  consulter le contenu de son membre nommÃ© 
           InnerException. 
 .
-        -une hashtable, les clés reconnues sont :
+        -une hashtable, les clÃ©s reconnues sont :
            -- Replace  Contient la valeur de remplacement.
-                       Une chaîne vide est autorisée, mais pas la valeur 
+                       Une chaÃ®ne vide est autorisÃ©e, mais pas la valeur 
                        $null.
-                       Cette clé est obligatoire.
+                       Cette clÃ© est obligatoire.
                        Son type est [String] ou [ScriptBlock].
 .                       
-           -- Max      Nombre maximal de fois où le remplacement aura lieu. 
-                       Sa valeur par défaut est -1 (on remplace toutes les
-                       occurrences trouvées) et ne doit pas être inférieure
-                       à -1.
-                       Pour une valeur $null ou une chaîne vide on affecte 
-                       la valeur par défaut.
+           -- Max      Nombre maximal de fois oÃ¹ le remplacement aura lieu. 
+                       Sa valeur par dÃ©faut est -1 (on remplace toutes les
+                       occurrences trouvÃ©es) et ne doit pas Ãªtre infÃ©rieure
+                       Ã  -1.
+                       Pour une valeur $null ou une chaÃ®ne vide on affecte 
+                       la valeur par dÃ©faut.
 .                       
-                       Cette clé est optionnelle et s'applique uniquement 
-                       aux expressions régulières.
+                       Cette clÃ© est optionnelle et s'applique uniquement 
+                       aux expressions rÃ©guliÃ¨res.
                        Son type est [Integer], sinon une tentative de 
-                       conversion est effectuée. 
+                       conversion est effectuÃ©e. 
 .
-           -- StartAt  Position du caractère, dans la chaîne d'entrée, où 
-                       la recherche débutera.
-                       Sa valeur par défaut est zéro (début de chaîne) et 
-                       doit être supérieure à zéro.
-                       Pour une valeur $null ou une chaîne vide on affecte 
-                       la valeur par défaut.
+           -- StartAt  Position du caractÃ¨re, dans la chaÃ®ne d'entrÃ©e, oÃ¹ 
+                       la recherche dÃ©butera.
+                       Sa valeur par dÃ©faut est zÃ©ro (dÃ©but de chaÃ®ne) et 
+                       doit Ãªtre supÃ©rieure Ã  zÃ©ro.
+                       Pour une valeur $null ou une chaÃ®ne vide on affecte 
+                       la valeur par dÃ©faut.
 .                       
-                       Cette clé est optionnelle et s'applique uniquement 
-                       aux expressions régulières.
+                       Cette clÃ© est optionnelle et s'applique uniquement 
+                       aux expressions rÃ©guliÃ¨res.
                        Son type est [Integer], sinon une tentative de 
-                       conversion est effectuée. 
+                       conversion est effectuÃ©e. 
 .
-           -- Options  L'expression régulière est créée avec les options 
-                       spécifiées.
-                       Sa valeur par défaut est "IgnoreCase" (la correspondance 
+           -- Options  L'expression rÃ©guliÃ¨re est crÃ©Ã©e avec les options 
+                       spÃ©cifiÃ©es.
+                       Sa valeur par dÃ©faut est "IgnoreCase" (la correspondance 
                        ne respecte pas la casse).
-                       Si vous spécifiez cette clé, l'option "IgnoreCase" 
-                       est écrasée par la nouvelle valeur.
-                       Pour une valeur $null ou une chaîne vide on affecte 
-                       la valeur par défaut.
+                       Si vous spÃ©cifiez cette clÃ©, l'option "IgnoreCase" 
+                       est Ã©crasÃ©e par la nouvelle valeur.
+                       Pour une valeur $null ou une chaÃ®ne vide on affecte 
+                       la valeur par dÃ©faut.
                        Peut contenir une valeur de type [Object], dans ce 
                        cas l'objet sera converti en [String]. Si la variable
-                       $OFS est déclarée elle sera utilisée lors de cette 
+                       $OFS est dÃ©clarÃ©e elle sera utilisÃ©e lors de cette 
                        conversion.
 .                       
-                       Cette clé est optionnelle et s'applique uniquement
-                       aux expressions régulières.
+                       Cette clÃ© est optionnelle et s'applique uniquement
+                       aux expressions rÃ©guliÃ¨res.
                        Son type est [System.Text.RegularExpressions.RegexOptions].
 .
-                       Note: En lieu et place de cette clé/valeur, il est 
+                       Note: En lieu et place de cette clÃ©/valeur, il est 
                        possible d'utiliser une construction d'options inline 
-                       dans le corps de l'expression régulière (voir un des 
+                       dans le corps de l'expression rÃ©guliÃ¨re (voir un des 
                        exemples).
                        Ces options inlines sont prioritaires et 
-                       complémentaires par rapport à celles définies par 
-                       cette clé.                
+                       complÃ©mentaires par rapport Ã  celles dÃ©finies par 
+                       cette clÃ©.                
 .                       
-         Si la hashtable ne contient pas de clé nommée 'Replace', la fonction 
-         émet une erreur non-bloquante. 
-         Si une des clés 'Max','StartAt' et 'Options' est absente, elle est 
-         insérée avec sa valeur par défaut.
-         La présence de noms de clés inconnues ne provoque pas d'erreur.
+         Si la hashtable ne contient pas de clÃ© nommÃ©e 'Replace', la fonction 
+         Ã©met une erreur non-bloquante. 
+         Si une des clÃ©s 'Max','StartAt' et 'Options' est absente, elle est 
+         insÃ©rÃ©e avec sa valeur par dÃ©faut.
+         La prÃ©sence de noms de clÃ©s inconnues ne provoque pas d'erreur.
 .
-         Rappel : Les règles de conversion de .NET s'appliquent.
+         Rappel : Les rÃ¨gles de conversion de .NET s'appliquent.
          Par exemple pour :
           [double] $Start=1,6
           $h."a"=@{Replace="X";StartAt=$Start}
-         où $Start contient une valeur de type [Double], celle-ci sera 
-         arrondie, ici à 2.         
+         oÃ¹ $Start contient une valeur de type [Double], celle-ci sera 
+         arrondie, ici Ã  2.         
 
 .PARAMETER ReplaceInfo
-    Indique que la fonction retourne un objet personnalisé [PSReplaceInfo].
+    Indique que la fonction retourne un objet personnalisÃ© [PSReplaceInfo].
     Celui-ci contient les membres suivants :  
-     -[ArrayList] Replaces  : Contient le résultat d'exécution de chaque 
-                              entrée du paramètre -Hashtable. 
+     -[ArrayList] Replaces  : Contient le rÃ©sultat d'exÃ©cution de chaque 
+                              entrÃ©e du paramÃ¨tre -Hashtable. 
      -[Boolean]   isSuccess : Indique si un remplacement a eu lieu, que 
-                              $InputObject ait un contenu différent ou pas.
+                              $InputObject ait un contenu diffÃ©rent ou pas.
      -            Value     : Contient la valeur de retour de $InputObject,
                               qu'il y ait eu ou non de modifications .
 .
-    Le membre Replaces contient une liste d'objets personnalisés de type 
-    [PSReplaceInfoItem]. A chaque clé du paramètre -Hashtable correspond 
-    un objet personnalisé.
-    L'ordre d'insertion dans la liste suit celui de l'exécution.
+    Le membre Replaces contient une liste d'objets personnalisÃ©s de type 
+    [PSReplaceInfoItem]. A chaque clÃ© du paramÃ¨tre -Hashtable correspond 
+    un objet personnalisÃ©.
+    L'ordre d'insertion dans la liste suit celui de l'exÃ©cution.
 .    
     PSReplaceInfoItem contient les membres suivants :
       - [String]  Old       : Contient la ligne avant la modification.
-                              Si -Property est précisé, ce champ contiendra 
+                              Si -Property est prÃ©cisÃ©, ce champ contiendra 
                               toujours $null.
-      - [String]  New       : Si le remplacement réussi, contient la ligne 
-                              après la modification, sinon contient $null.
-                              Si -Property est précisé, ce champ contiendra 
+      - [String]  New       : Si le remplacement rÃ©ussi, contient la ligne 
+                              aprÃ¨s la modification, sinon contient $null.
+                              Si -Property est prÃ©cisÃ©, ce champ contiendra 
                               toujours $null.
       - [String]  Pattern   : Contient le pattern de recherche.
       - [Boolean] isSuccess : Indique s'il y a eu un remplacement.
-                              Dans le cas où on remplace une occurrence 'A' 
-                              par 'A', une expression régulière permet de
-                              savoir si un remplacement a eu lieu, même à 
+                              Dans le cas oÃ¹ on remplace une occurrence 'A' 
+                              par 'A', une expression rÃ©guliÃ¨re permet de
+                              savoir si un remplacement a eu lieu, mÃªme Ã  
                               l'identique. Si vous utilisez -SimpleReplace 
-                              ce n'est plus le cas, cette propriété contiendra 
+                              ce n'est plus le cas, cette propriÃ©tÃ© contiendra 
                               $false.   
-    Notez que si le paramètre -Property est précisé, une seule opération sera 
-    enregistrée dans le tableau Replaces, les noms des propriétés traitées 
-    ne sont pas mémorisés.       
+    Notez que si le paramÃ¨tre -Property est prÃ©cisÃ©, une seule opÃ©ration sera 
+    enregistrÃ©e dans le tableau Replaces, les noms des propriÃ©tÃ©s traitÃ©es 
+    ne sont pas mÃ©morisÃ©s.       
 .
     Note : 
-    Attention à la consommation mémoire si $InputObject est une chaîne de
-    caractère de taille importante.
-    Si vous mémorisez le résultat dans une variable, l'objet contenu dans
-    le champ PSReplaceInfo.Value sera toujours référencé.
-    Pensez à supprimer rapidement cette variable afin de ne pas retarder la 
-    libération automatique des objets référencés.      
+    Attention Ã  la consommation mÃ©moire si $InputObject est une chaÃ®ne de
+    caractÃ¨re de taille importante.
+    Si vous mÃ©morisez le rÃ©sultat dans une variable, l'objet contenu dans
+    le champ PSReplaceInfo.Value sera toujours rÃ©fÃ©rencÃ©.
+    Pensez Ã  supprimer rapidement cette variable afin de ne pas retarder la 
+    libÃ©ration automatique des objets rÃ©fÃ©rencÃ©s.      
 
 .PARAMETER Property
-    Spécifie le ou les noms des propriétés d'un objet concernées lors du 
-    remplacement. Seules sont traités les propriétés de type [string] 
-    possédant un assesseur en écriture (Setter).
-    Pour chaque propriété on effectue tous les remplacements précisés dans 
-    le paramètre -Hashtable, tout en tenant compte de la valeur des paramètres
+    SpÃ©cifie le ou les noms des propriÃ©tÃ©s d'un objet concernÃ©es lors du 
+    remplacement. Seules sont traitÃ©s les propriÃ©tÃ©s de type [string] 
+    possÃ©dant un assesseur en Ã©criture (Setter).
+    Pour chaque propriÃ©tÃ© on effectue tous les remplacements prÃ©cisÃ©s dans 
+    le paramÃ¨tre -Hashtable, tout en tenant compte de la valeur des paramÃ¨tres
     -Unique et -SimpleReplace.
-    On réémet l'objet reçu, après avoir modifié les propriétés indiquées.
-    Le paramètre -Inputobject n'est donc pas converti en type [String].
-    Une erreur non-bloquante sera déclenchée si l'opération ne peut aboutir.
+    On rÃ©Ã©met l'objet reÃ§u, aprÃ¨s avoir modifiÃ© les propriÃ©tÃ©s indiquÃ©es.
+    Le paramÃ¨tre -Inputobject n'est donc pas converti en type [String].
+    Une erreur non-bloquante sera dÃ©clenchÃ©e si l'opÃ©ration ne peut aboutir.
 .     
-    Les jokers sont autorisés dans les noms de propriétés.
-    Comme les objets reçus peuvent être de différents types, le traitement 
-    des propriétés inexistante ne génére pas d'erreur.   
+    Les jokers sont autorisÃ©s dans les noms de propriÃ©tÃ©s.
+    Comme les objets reÃ§us peuvent Ãªtre de diffÃ©rents types, le traitement 
+    des propriÃ©tÃ©s inexistante ne gÃ©nÃ©re pas d'erreur.   
          
 .PARAMETER Unique
     Pas de recherche/remplacement multiple.
 .
-    L'exécution ne concerne qu'une seule opération de recherche et de 
-    remplacement, la première qui réussit, même si le paramètre -Hashtable 
-    contient plusieurs entrées.
-    Si le paramètre -Property est précisé, l'opération unique se fera sur 
-    toutes les propriétés indiquées.
-    Ce paramètre ne remplace pas l'information précisée par la clé 'Max'. 
+    L'exÃ©cution ne concerne qu'une seule opÃ©ration de recherche et de 
+    remplacement, la premiÃ¨re qui rÃ©ussit, mÃªme si le paramÃ¨tre -Hashtable 
+    contient plusieurs entrÃ©es.
+    Si le paramÃ¨tre -Property est prÃ©cisÃ©, l'opÃ©ration unique se fera sur 
+    toutes les propriÃ©tÃ©s indiquÃ©es.
+    Ce paramÃ¨tre ne remplace pas l'information prÃ©cisÃ©e par la clÃ© 'Max'. 
 .
-    Note : La présence du switch -Whatif influence le comportement du switch 
+    Note : La prÃ©sence du switch -Whatif influence le comportement du switch 
     -Unique. Puisque -Whatif n'effectue aucun traitement, on ne peut pas 
     savoir si un remplacement a eu lieu, dans ce cas le traitement de 
-    toutes les clés sera simulé.
+    toutes les clÃ©s sera simulÃ©.
     
 .PARAMETER SimpleReplace
-    Utilise une correspondance simple plutôt qu'une correspondance d'expression 
-    régulière. La recherche et le remplacement utilisent la méthode 
-    String.Replace() en lieu et place d'une expression régulière.
-    ATTENTION cette dernière méthode effectue une recherche de mots en 
+    Utilise une correspondance simple plutÃ´t qu'une correspondance d'expression 
+    rÃ©guliÃ¨re. La recherche et le remplacement utilisent la mÃ©thode 
+    String.Replace() en lieu et place d'une expression rÃ©guliÃ¨re.
+    ATTENTION cette derniÃ¨re mÃ©thode effectue une recherche de mots en 
     respectant la casse et tenant compte de la culture.
 .    
-    L'usage de ce switch ne permet pas d'utiliser toutes les fonctionnalités 
-    du paramètre -Hashtable, ex :  @{Replace="X";Max=n;StartAt=n;Options="Compiled"}. 
-    Si vous couplez ce paramètre avec ce type de hashtable, seule la clé 
+    L'usage de ce switch ne permet pas d'utiliser toutes les fonctionnalitÃ©s 
+    du paramÃ¨tre -Hashtable, ex :  @{Replace="X";Max=n;StartAt=n;Options="Compiled"}. 
+    Si vous couplez ce paramÃ¨tre avec ce type de hashtable, seule la clÃ© 
     'Replace' sera prise en compte. 
-    Un avertissement est généré, pour l'éviter utiliser le paramétrage 
+    Un avertissement est gÃ©nÃ©rÃ©, pour l'Ã©viter utiliser le paramÃ©trage 
     suivant :
      -WarningAction:SilentlyContinue #bug en v2
      ou
      $WarningPreference="SilentlyContinue"
 
 .EXAMPLE
-    $S= "Caractères : 33 \d\d"
+    $S= "CaractÃ¨res : 33 \d\d"
     $h=@{}
     $h."a"="?"
     $h."\d"='X'
@@ -248,29 +252,29 @@ Function Replace-String{
 .        
     Description
     -----------
-    Ces commandes effectuent un remplacement multiple dans la chaîne $S, 
-    elles remplacent toutes les lettres 'a' par le caractère '?' et tous 
+    Ces commandes effectuent un remplacement multiple dans la chaÃ®ne $S, 
+    elles remplacent toutes les lettres 'a' par le caractÃ¨re '?' et tous 
     les chiffres par la lettre 'X'.
 .
-    La hashtable $h contient deux entrées, chaque clé est utilisée comme 
-    étant la chaîne à rechercher et la valeur de cette clé est utilisée 
-    comme chaîne de remplacement. Dans ce cas on effectue deux opérations 
-    de remplacement sur chaque chaîne de caractère reçu. 
+    La hashtable $h contient deux entrÃ©es, chaque clÃ© est utilisÃ©e comme 
+    Ã©tant la chaÃ®ne Ã  rechercher et la valeur de cette clÃ© est utilisÃ©e 
+    comme chaÃ®ne de remplacement. Dans ce cas on effectue deux opÃ©rations 
+    de remplacement sur chaque chaÃ®ne de caractÃ¨re reÃ§u. 
 .       
-    Le résultat, de type chaîne de caractères, est égal à : 
-    C?r?ctères : XX \d\d
+    Le rÃ©sultat, de type chaÃ®ne de caractÃ¨res, est Ã©gal Ã  : 
+    C?r?ctÃ¨res : XX \d\d
 . 
 .         
-    La hashtable $H contenant deux entrées, Replace-String effectuera deux 
-    opérations de remplacement sur la chaîne $S. 
+    La hashtable $H contenant deux entrÃ©es, Replace-String effectuera deux 
+    opÃ©rations de remplacement sur la chaÃ®ne $S. 
 .    
-    Ces deux opérations sont équivalentes à la suite d'instructions suivantes :
+    Ces deux opÃ©rations sont Ã©quivalentes Ã  la suite d'instructions suivantes :
     $Resultat=$S -replace "a",'?'
     $Resultat=$Resultat -replace "\d",'X'
     $Resultat
     
 .EXAMPLE
-    $S= "Caractères : 33 \d\d"
+    $S= "CaractÃ¨res : 33 \d\d"
     $h=@{}
     $h."a"="?"
     $h."\d"='X'
@@ -278,20 +282,20 @@ Function Replace-String{
 .        
     Description
     -----------
-    Ces commandes effectuent un remplacement multiple dans la chaîne $S, 
-    elles remplacent toutes les lettres 'a' par le caractère '?', tous les 
-    chiffres ne seront pas remplacés par la lettre 'X', mais toutes les 
-    combinaisons de caractères "\d" le seront, car le switch SimpleReplace 
-    est précisé. Dans ce cas, la valeur de la clé est considérée comme une 
-    simple chaîne de caractères et pas comme une expression régulière. 
+    Ces commandes effectuent un remplacement multiple dans la chaÃ®ne $S, 
+    elles remplacent toutes les lettres 'a' par le caractÃ¨re '?', tous les 
+    chiffres ne seront pas remplacÃ©s par la lettre 'X', mais toutes les 
+    combinaisons de caractÃ¨res "\d" le seront, car le switch SimpleReplace 
+    est prÃ©cisÃ©. Dans ce cas, la valeur de la clÃ© est considÃ©rÃ©e comme une 
+    simple chaÃ®ne de caractÃ¨res et pas comme une expression rÃ©guliÃ¨re. 
 .    
-    Le résultat, de type chaîne de caractères, est égal à : 
-    C?r?ctères : 33 XX
+    Le rÃ©sultat, de type chaÃ®ne de caractÃ¨res, est Ã©gal Ã  : 
+    C?r?ctÃ¨res : 33 XX
 .         
-    La hashtable $H contenant deux entrées, Replace-String effectuera deux 
-    opérations de remplacement sur la chaîne $S. 
+    La hashtable $H contenant deux entrÃ©es, Replace-String effectuera deux 
+    opÃ©rations de remplacement sur la chaÃ®ne $S. 
 .    
-    Ces deux opérations sont équivalentes à la suite d'instructions suivantes :
+    Ces deux opÃ©rations sont Ã©quivalentes Ã  la suite d'instructions suivantes :
     $Resultat=$S.Replace("a",'?')
     $Resultat=$Resultat.Replace("\d",'X')
     $Resultat    
@@ -299,7 +303,7 @@ Function Replace-String{
     $Resultat=$S.Replace("a",'?').Replace("\d",'X')
     
 .EXAMPLE
-    $S= "Caractères : 33"
+    $S= "CaractÃ¨res : 33"
     $h=@{}
     $h."a"="?"
     $h."\d"='X'
@@ -307,41 +311,41 @@ Function Replace-String{
 . 
     Description
     -----------
-    Ces commandes effectuent un seul remplacement dans la chaîne $S, elles 
-    remplacent toutes les lettres 'a' par le caractère '?'.
+    Ces commandes effectuent un seul remplacement dans la chaÃ®ne $S, elles 
+    remplacent toutes les lettres 'a' par le caractÃ¨re '?'.
 . 
-    L'usage du paramètre -Unique arrête le traitement, pour l'objet en cours, 
-    dés qu'une opération de recherche et remplacement réussit.
+    L'usage du paramÃ¨tre -Unique arrÃªte le traitement, pour l'objet en cours, 
+    dÃ©s qu'une opÃ©ration de recherche et remplacement rÃ©ussit.
 .    
-    Le résultat, de type chaîne de caractères, est égal à : 
-    C?r?ctères : 33 
+    Le rÃ©sultat, de type chaÃ®ne de caractÃ¨res, est Ã©gal Ã  : 
+    C?r?ctÃ¨res : 33 
 
 .EXAMPLE
-    $S= "Caractères : 33"
+    $S= "CaractÃ¨res : 33"
     $h=@{}
     $h."a"="?"
-     #Substitution à l'aide de capture nommée
+     #Substitution Ã  l'aide de capture nommÃ©e
     $h."(?<Chiffre>\d)"='${Chiffre}X'
     $S|Replace-String $h 
     
     Description
     -----------
-    Ces commandes effectuent un remplacement multiple dans la chaîne $S, 
-    elles remplacent toutes les lettres 'a' par le caractère '?' et tous 
-    les chiffres par la sous-chaîne trouvée, correspondant au groupe 
+    Ces commandes effectuent un remplacement multiple dans la chaÃ®ne $S, 
+    elles remplacent toutes les lettres 'a' par le caractÃ¨re '?' et tous 
+    les chiffres par la sous-chaÃ®ne trouvÃ©e, correspondant au groupe 
     (?<Chiffre>\d), suivie de la lettre 'X'.
 .
-    Le résultat, de type chaîne de caractères, est égal à : 
-    C?r?ctères : 3X3X   
+    Le rÃ©sultat, de type chaÃ®ne de caractÃ¨res, est Ã©gal Ã  : 
+    C?r?ctÃ¨res : 3X3X   
 .
-    L'utilisation d'une capture nommée, en lieu et place d'un numéro de 
-    groupe, comme $h."\d"='$1 X', évite de séparer le texte du nom de groupe 
-    par au moins un caractère espace.
-    Le parsing par le moteur des expressions régulières reconnait $1, mais 
+    L'utilisation d'une capture nommÃ©e, en lieu et place d'un numÃ©ro de 
+    groupe, comme $h."\d"='$1 X', Ã©vite de sÃ©parer le texte du nom de groupe 
+    par au moins un caractÃ¨re espace.
+    Le parsing par le moteur des expressions rÃ©guliÃ¨res reconnait $1, mais 
     pas $1X.      
     
 .EXAMPLE
-    $S= "Caractères : 33"
+    $S= "CaractÃ¨res : 33"
     $h=@{}
     $h."a"="?"
     $h."(?<Chiffre>\d)"='${Chiffre}X'
@@ -350,29 +354,29 @@ Function Replace-String{
     
     Description
     -----------
-    Ces commandes effectuent un remplacement multiple dans la chaîne $S, 
+    Ces commandes effectuent un remplacement multiple dans la chaÃ®ne $S, 
     elles remplacent :
-     -toutes les lettres 'a' par le caractère '?', 
-     -tous les chiffres par la sous-chaîne trouvée, correspondant au groupe
+     -toutes les lettres 'a' par le caractÃ¨re '?', 
+     -tous les chiffres par la sous-chaÃ®ne trouvÃ©e, correspondant au groupe
      (?<Chiffre>\d), suivie de la lettre 'X', 
-     -et tous les caractères ':' par le résultat de l'exécution du 
+     -et tous les caractÃ¨res ':' par le rÃ©sultat de l'exÃ©cution du 
      ScriptBlock {"<$($args[0])>"}.
 .
-    Le Scriptblock est implicitement casté en un délégué du type 
+    Le Scriptblock est implicitement castÃ© en un dÃ©lÃ©guÃ© du type 
     [System.Text.RegularExpressions.MatchEvaluator]. 
 .
-    Son usage permet, pour chaque occurrence trouvée, d'évaluer le remplacement 
-    à l'aide d'instructions du langage PowerShell.
-    Son exécution renvoie comme résultat une chaîne de caractères.
-    Il est possible d'y référencer des variables globales (voir les règles 
-    de portée de PowerShell) ou l'objet référencé par le paramètre 
+    Son usage permet, pour chaque occurrence trouvÃ©e, d'Ã©valuer le remplacement 
+    Ã  l'aide d'instructions du langage PowerShell.
+    Son exÃ©cution renvoie comme rÃ©sultat une chaÃ®ne de caractÃ¨res.
+    Il est possible d'y rÃ©fÃ©rencer des variables globales (voir les rÃ¨gles 
+    de portÃ©e de PowerShell) ou l'objet rÃ©fÃ©rencÃ© par le paramÃ¨tre 
     $InputObject.
 .                
-    Le résultat, de type chaîne de caractères, est égal à : 
-    C?r?ctères <:> 3X3X          
+    Le rÃ©sultat, de type chaÃ®ne de caractÃ¨res, est Ã©gal Ã  : 
+    C?r?ctÃ¨res <:> 3X3X          
        
 .EXAMPLE
-    $S= "CAractères : 33"
+    $S= "CAractÃ¨res : 33"
     $h=@{}
     $h."a"=@{Replace="?";StartAt=3;Options="IgnoreCase"} 
     $h."\d"=@{Replace='X';Max=1}
@@ -380,23 +384,23 @@ Function Replace-String{
     
     Description
     -----------
-    Ces commandes effectuent un remplacement multiple dans la chaîne $S.
-    On paramètre chaque expression régulière à l'aide d'une hashtable 
-    'normalisée'.
+    Ces commandes effectuent un remplacement multiple dans la chaÃ®ne $S.
+    On paramÃ¨tre chaque expression rÃ©guliÃ¨re Ã  l'aide d'une hashtable 
+    'normalisÃ©e'.
 .    
-    Pour l'expression régulière "a" on remplace toutes les lettres 'a', 
-    situées après le troisième caractère, par le caractère '?'. La recherche
-    est insensible à la casse, on ne tient pas compte des majuscules et de 
-    minuscules, les caractères 'A' et 'a' sont concernés.
-    Pour l'expression régulière "\d" on remplace un seul chiffre, le premier 
-    trouvé, par la lettre 'X'.               
+    Pour l'expression rÃ©guliÃ¨re "a" on remplace toutes les lettres 'a', 
+    situÃ©es aprÃ¨s le troisiÃ¨me caractÃ¨re, par le caractÃ¨re '?'. La recherche
+    est insensible Ã  la casse, on ne tient pas compte des majuscules et de 
+    minuscules, les caractÃ¨res 'A' et 'a' sont concernÃ©s.
+    Pour l'expression rÃ©guliÃ¨re "\d" on remplace un seul chiffre, le premier 
+    trouvÃ©, par la lettre 'X'.               
 .
-    Pour les clés de la hashtable 'normalisée' qui sont indéfinies, on 
-    utilisera les valeurs par défaut. La seconde clé est donc égale à :
+    Pour les clÃ©s de la hashtable 'normalisÃ©e' qui sont indÃ©finies, on 
+    utilisera les valeurs par dÃ©faut. La seconde clÃ© est donc Ã©gale Ã  :
      $h."\d"=@{Replace='X';Max=1;StartAt=0;Options="IgnoreCase"}
 .        
-    Le résultat, de type chaîne de caractères, est égal à : 
-    CAr?ctères : X3
+    Le rÃ©sultat, de type chaÃ®ne de caractÃ¨res, est Ã©gal Ã  : 
+    CAr?ctÃ¨res : X3
     
 .EXAMPLE
     $S="( Date ) Test d'effet de bord : modification de mot"
@@ -416,24 +420,24 @@ Function Replace-String{
     
     Description
     -----------
-    Ces deux exemples effectuent un remplacement multiple dans la chaîne $S.
-    Les éléments d'une hashtable, déclarée par @{}, ne sont par ordonnés, ce 
-    qui fait que l'ordre d'exécution des expressions régulières peut ne pas 
+    Ces deux exemples effectuent un remplacement multiple dans la chaÃ®ne $S.
+    Les Ã©lÃ©ments d'une hashtable, dÃ©clarÃ©e par @{}, ne sont par ordonnÃ©s, ce 
+    qui fait que l'ordre d'exÃ©cution des expressions rÃ©guliÃ¨res peut ne pas 
     respecter celui de l'insertion.
 .
     Dans le premier exemple, cela peut provoquer un effet de bord. Si on 
-    exécute les deux expressions régulières, la seconde modifie également 
-    la seconde occurrence du terme 'Date' qui a précédemment été insérée 
+    exÃ©cute les deux expressions rÃ©guliÃ¨res, la seconde modifie Ã©galement 
+    la seconde occurrence du terme 'Date' qui a prÃ©cÃ©demment Ã©tÃ© insÃ©rÃ©e 
     lors du remplacement de l'occurrence du terme 'mot'.
-    Dans ce cas, on peut utiliser le switch -Unique afin d'éviter cet effet 
-    de bord indésirable.
+    Dans ce cas, on peut utiliser le switch -Unique afin d'Ã©viter cet effet 
+    de bord indÃ©sirable.
 .
-    Le second exemple utilise une hashtable ordonnée qui nous assure d'
-    exécuter les expressions régulières dans l'ordre de leur insertion.
+    Le second exemple utilise une hashtable ordonnÃ©e qui nous assure d'
+    exÃ©cuter les expressions rÃ©guliÃ¨res dans l'ordre de leur insertion.
 .
-    Les résultats, de type chaîne de caractères, sont respectivement : 
-    ( NomJour nn NomMois année ) Test d'effet de bord : modification de NomJour nn NomMois année  
-    ( NomJour nn NomMois année ) Test d'effet de bord : modification de Date  
+    Les rÃ©sultats, de type chaÃ®ne de caractÃ¨res, sont respectivement : 
+    ( NomJour nn NomMois annÃ©e ) Test d'effet de bord : modification de NomJour nn NomMois annÃ©e  
+    ( NomJour nn NomMois annÃ©e ) Test d'effet de bord : modification de Date  
 
 .EXAMPLE
     $S=@"
@@ -446,9 +450,9 @@ Function Replace-String{
     
     $od=new-object System.Collections.Specialized.OrderedDictionary
      # \s* recherche les espaces et les tabulations
-     #On échappe le caractère diése(#)
+     #On Ã©chappe le caractÃ¨re diÃ©se(#)
     $od.'(?im-s)^\s*\#\s*Version\s*:(.*)$'=$Version
-    # équivalent à :
+    # Ã©quivalent Ã  :
     #$od.'^\s*\#\s*Version\s*:(.*)$'=@{Replace=$Version;Options="IgnoreCase,MultiLine"} 
     $LongDatePattern=[System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.LongDatePattern
     $od.'(?im-s)^\s*\#\s*Date\s*:(.*)$'="# Date    : $(Get-Date -format $LongDatePattern)"
@@ -456,28 +460,28 @@ Function Replace-String{
    
     Description
     -----------
-    Ces instructions effectuent un remplacement multiple dans la chaîne $S.
+    Ces instructions effectuent un remplacement multiple dans la chaÃ®ne $S.
     On utilise une construction d'options inline '(?im-s)', celle-ci active 
-    l'option 'IgnoreCase' et 'Multiline', et désactive l'option 'Singleline'.
-    Ces options inlines sont prioritaires et complémentaires par rapport à 
-    celles définies dans la clé 'Options' d'une entrée du paramètre 
+    l'option 'IgnoreCase' et 'Multiline', et dÃ©sactive l'option 'Singleline'.
+    Ces options inlines sont prioritaires et complÃ©mentaires par rapport Ã  
+    celles dÃ©finies dans la clÃ© 'Options' d'une entrÃ©e du paramÃ¨tre 
     -Hashtable.
 .
-    La Here-String $S est une chaîne de caractères contenant des retours 
-    chariot(CR+LF), on doit donc spécifier le mode multiligne (?m) qui 
-    modifie la signification de ^ et $ dans l'expression régulière, de 
-    telle sorte qu'ils correspondent, respectivement, au début et à la fin 
-    de n'importe quelle ligne et non simplement au début et à la fin de la 
-    chaîne complète.
+    La Here-String $S est une chaÃ®ne de caractÃ¨res contenant des retours 
+    chariot(CR+LF), on doit donc spÃ©cifier le mode multiligne (?m) qui 
+    modifie la signification de ^ et $ dans l'expression rÃ©guliÃ¨re, de 
+    telle sorte qu'ils correspondent, respectivement, au dÃ©but et Ã  la fin 
+    de n'importe quelle ligne et non simplement au dÃ©but et Ã  la fin de la 
+    chaÃ®ne complÃ¨te.
 .    
-    Le résultat, de type chaîne de caractères, est égal à : 
+    Le rÃ©sultat, de type chaÃ®ne de caractÃ¨res, est Ã©gal Ã  : 
 # Version : 1.2.1
 #
-# Date    : NomDeJour xx NomDeMois Année 
+# Date    : NomDeJour xx NomDeMois AnnÃ©e 
 .
 .   Note :  
     Sous PS v2, un bug fait qu'une nouvelle ligne dans une Here-String est 
-    représentée par l'unique caractère "`n" et pas par la suite de caractères 
+    reprÃ©sentÃ©e par l'unique caractÃ¨re "`n" et pas par la suite de caractÃ¨res 
     "`r`n".
 
 .EXAMPLE
@@ -506,21 +510,21 @@ rem ...
    
     Description
     -----------
-    Ces instructions effectuent un remplacement simple dans la chaîne $S.
-    On utilise ici Replace-String pour générer un script batch à partir
-    d'un template (gabarit ou modèle de conception).
-    Toutes les occurrences du texte '#SID#' sont remplacées par la chaîne 
-    'BaseTest'. Le résultat de la fonction est un objet personnalisé de type
+    Ces instructions effectuent un remplacement simple dans la chaÃ®ne $S.
+    On utilise ici Replace-String pour gÃ©nÃ©rer un script batch Ã  partir
+    d'un template (gabarit ou modÃ¨le de conception).
+    Toutes les occurrences du texte '#SID#' sont remplacÃ©es par la chaÃ®ne 
+    'BaseTest'. Le rÃ©sultat de la fonction est un objet personnalisÃ© de type
     [PSReplaceInfo].
 .
-    Ce résultat peut être émis directement vers le cmdlet Set-Content, car 
-    le membre 'Value' de la variable $Result est automatiquement lié au 
-    paramètre -Value du cmdlet Set-Content.  
+    Ce rÃ©sultat peut Ãªtre Ã©mis directement vers le cmdlet Set-Content, car 
+    le membre 'Value' de la variable $Result est automatiquement liÃ© au 
+    paramÃ¨tre -Value du cmdlet Set-Content.  
 
 .EXAMPLE
     $S="Un petit deux-roues, c'est trois fois rien."
     $Alternatives=@("un","deux","trois")
-     #En regex '|' est le métacaractère 
+     #En regex '|' est le mÃ©tacaractÃ¨re 
      #pour les alternatives.
     $ofs="|"
     $h=@{}
@@ -536,22 +540,22 @@ rem ...
     
     Description
     -----------
-    Ces instructions effectuent un remplacement multiple dans la chaîne $S.
-    On utilise ici un tableau de chaînes qui se seront transformées, à 
-    l'aide de la variable PowerShell $OFS, en une chaîne d'expression 
-    régulière contenant une alternative "un|deux|trois". On lui associe un 
-    Scriptblock dans lequel on déterminera, selon l'occurrence trouvée, la 
-    valeur correspondante à renvoyer.
+    Ces instructions effectuent un remplacement multiple dans la chaÃ®ne $S.
+    On utilise ici un tableau de chaÃ®nes qui se seront transformÃ©es, Ã  
+    l'aide de la variable PowerShell $OFS, en une chaÃ®ne d'expression 
+    rÃ©guliÃ¨re contenant une alternative "un|deux|trois". On lui associe un 
+    Scriptblock dans lequel on dÃ©terminera, selon l'occurrence trouvÃ©e, la 
+    valeur correspondante Ã  renvoyer.
 .    
-    Le résultat, de type chaîne de caractères, est égal à : 
+    Le rÃ©sultat, de type chaÃ®ne de caractÃ¨res, est Ã©gal Ã  : 
     1 petit 2-roues, c'est 3 fois rien.
 
 .EXAMPLE
-     #Paramètrage
+     #ParamÃ¨trage
     $NumberVersion="1.2.1"
     $Version="# Version : $Numberversion"
-     #La date est substituée une seule fois lors
-     #de la création de la hashtable. 
+     #La date est substituÃ©e une seule fois lors
+     #de la crÃ©ation de la hashtable. 
     $Modifications= @{
        "^\s*\#\s*Version\s*:(.*)$"=$Version;
        '^\s*\#\s*Date\s*:(.*)$'="# Date    : $(Get-Date -format 'd MMMM yyyy')"
@@ -563,7 +567,7 @@ rem ...
     
     cd "C:\Temp\Replace-String\TestReplace"
      #Cherche et remplace dans tous les fichiers d'une arborescence, sauf les .bak
-     #Chaque fichier est recopié en .bak avant les modifications
+     #Chaque fichier est recopiÃ© en .bak avant les modifications
     Get-ChildItem "$PWD" *.ps1 -exclude *.bak -recurse| 
      Where-Object {!$_.PSIsContainer} |
      ForEach-Object {
@@ -575,7 +579,7 @@ rem ...
         Replace-String $Modifications|
         Set-Content -path $CurrentFile
        
-        #compare le résultat à l'aide de Winmerge
+        #compare le rÃ©sultat Ã  l'aide de Winmerge
       if ($RunWinMerge)
        {Microsoft.PowerShell.Management\start-process  "C:\Program Files\WinMerge\WinMergeU.exe" -Argument "/maximize /e /s /u $BackupFile $CurrentFile"  -wait}  
     } #foreach
@@ -584,10 +588,10 @@ rem ...
     -----------
     Ces instructions effectuent un remplacement multiple sur le contenu 
     d'un ensemble de fichiers '.ps1'.
-    On remplace dans l'entête de chaque fichier le numéro de version et la 
-    date. Avant le traitement, chaque fichier .ps1 est recopié en .bak dans
-    le même répertoire. Une fois le traitement d'un fichier effectué, on 
-    peut visualiser les différences à l'aide de l'utilitaire WinMerge.   
+    On remplace dans l'entÃªte de chaque fichier le numÃ©ro de version et la 
+    date. Avant le traitement, chaque fichier .ps1 est recopiÃ© en .bak dans
+    le mÃªme rÃ©pertoire. Une fois le traitement d'un fichier effectuÃ©, on 
+    peut visualiser les diffÃ©rences Ã  l'aide de l'utilitaire WinMerge.   
 
 .EXAMPLE
     $AllObjects=dir Variable:
@@ -595,22 +599,22 @@ rem ...
       $h=@{}
       $h."^$"={"Nouvelle description de la variable $($InputObject.Name)"}
        #PowerShell V2 FR
-      $h."(^Nombre|^Indique|^Entraîne)(.*)$"='POWERSHELL $1$2'
+      $h."(^Nombre|^Indique|^EntraÃ®ne)(.*)$"='POWERSHELL $1$2'
       $Result=$AllObjects|Replace-String $h -property "Description" -ReplaceInfo -Unique
     $AllObjects| Ft Name,Description|More  
 
     Description
     -----------
     Ces instructions effectuent un remplacement unique sur le contenu d'une 
-    propriété d'un objet, ici de type [PSVariable].
-    La première expression régulière recherche les objets dont la propriété 
-    'Description', de type [string], n'est pas renseignée. 
-    La seconde modifie celles contenant en début de chaîne un des trois mots 
-    précisés dans une alternative. La chaîne de remplacement reconstruit le 
-    contenu en insérant le mot 'PowerShell' en début de chaîne.
+    propriÃ©tÃ© d'un objet, ici de type [PSVariable].
+    La premiÃ¨re expression rÃ©guliÃ¨re recherche les objets dont la propriÃ©tÃ© 
+    'Description', de type [string], n'est pas renseignÃ©e. 
+    La seconde modifie celles contenant en dÃ©but de chaÃ®ne un des trois mots 
+    prÃ©cisÃ©s dans une alternative. La chaÃ®ne de remplacement reconstruit le 
+    contenu en insÃ©rant le mot 'PowerShell' en dÃ©but de chaÃ®ne.
 .    
-    Le contenu de la propriété 'Description' d'un objet de type 
-    [PSVariable] n'est pas persistant, cette opération ne présente donc 
+    Le contenu de la propriÃ©tÃ© 'Description' d'un objet de type 
+    [PSVariable] n'est pas persistant, cette opÃ©ration ne prÃ©sente donc 
     aucun risque. 
 
 .EXAMPLE
@@ -643,37 +647,37 @@ rem ...
 
     Description
     -----------
-    La première instruction crée une sauvegarde des informations de la ruche 
+    La premiÃ¨re instruction crÃ©e une sauvegarde des informations de la ruche 
     'HKEY_CURRENT_USER\Environment', la seconde charge la sauvegarde dans
-    une nouvelle ruche nommée 'HKEY_USer\PowerShell_TEST' et la troisième 
-    crée un drive PowerShell nommé 'Test'.
+    une nouvelle ruche nommÃ©e 'HKEY_USer\PowerShell_TEST' et la troisiÃ¨me 
+    crÃ©e un drive PowerShell nommÃ© 'Test'.
 .
-    Les instructions suivantes récupèrent les clés de registre et leurs 
-    valeurs. À partir de celles-ci on crée autant d'objets personnalisés 
-    qu'il y a de clés. Les noms des membres de cet objet personnalisé 
-    correspondent à des noms de paramètres du cmdlet Set-ItemProperty qui 
-    acceptent l'entrée de pipeline (ValueFromPipelineByPropertyName). 
+    Les instructions suivantes rÃ©cupÃ¨rent les clÃ©s de registre et leurs 
+    valeurs. Ã€ partir de celles-ci on crÃ©e autant d'objets personnalisÃ©s 
+    qu'il y a de clÃ©s. Les noms des membres de cet objet personnalisÃ© 
+    correspondent Ã  des noms de paramÃ¨tres du cmdlet Set-ItemProperty qui 
+    acceptent l'entrÃ©e de pipeline (ValueFromPipelineByPropertyName). 
 .   
-    Ensuite, à l'aide de Replace-String, on recherche et remplace dans la 
-    propriété 'Value' de chaque objet créé, les occurrences de 'C:\' par 
+    Ensuite, Ã  l'aide de Replace-String, on recherche et remplace dans la 
+    propriÃ©tÃ© 'Value' de chaque objet crÃ©Ã©, les occurrences de 'C:\' par 
     'D:\'. 
-    Replace-String émet directement les objets vers le cmdlet 
+    Replace-String Ã©met directement les objets vers le cmdlet 
     Set-ItemProperty.
-    Et enfin, celui-ci lit les informations à mettre à jour à partir des 
-    propriétés de l'objet personnalisé reçu.
+    Et enfin, celui-ci lit les informations Ã  mettre Ã  jour Ã  partir des 
+    propriÃ©tÃ©s de l'objet personnalisÃ© reÃ§u.
 .
-    Pour terminer, on supprime le drive PowerShell et on décharge la ruche 
+    Pour terminer, on supprime le drive PowerShell et on dÃ©charge la ruche 
     de test.
     Note:
-     Sous PowerShell l'usage de Set-ItemProperty (à priori) empêche la 
-     libération de la ruche chargée, on obtient l'erreur 'Access Denied'.
-     Pour finaliser cette opération, on doit fermer la console PowerShell 
-     et exécuter cmd.exe afin d'y libérer correctement la ruche :
+     Sous PowerShell l'usage de Set-ItemProperty (Ã  priori) empÃªche la 
+     libÃ©ration de la ruche chargÃ©e, on obtient l'erreur 'Access Denied'.
+     Pour finaliser cette opÃ©ration, on doit fermer la console PowerShell 
+     et exÃ©cuter cmd.exe afin d'y libÃ©rer correctement la ruche :
       Cmd /k "REG UNLOAD HKU\PowerShell_TEST"        
  
 .INPUTS
     System.Management.Automation.PSObject
-     Vous pouvez diriger tout objet ayant une méthode ToString vers 
+     Vous pouvez diriger tout objet ayant une mÃ©thode ToString vers 
      Replace-String.
 
 .OUTPUTS
@@ -681,27 +685,27 @@ rem ...
     System.Object
     System.PSReplaceInfo 
 
-     Replace-String retourne tous les objets qu'il soient modifiés ou pas.
+     Replace-String retourne tous les objets qu'il soient modifiÃ©s ou pas.
 
 .NOTES
-    Vous pouvez consulter la documentation Française sur les expressions
-    régulières, via les liens suivants :
+    Vous pouvez consulter la documentation FranÃ§aise sur les expressions
+    rÃ©guliÃ¨res, via les liens suivants :
 .   
-    Options des expressions régulières  : 
+    Options des expressions rÃ©guliÃ¨res  : 
      http://msdn.microsoft.com/fr-fr/library/yd1hzczs(v=VS.80).aspx
      http://msdn.microsoft.com/fr-fr/library/yd1hzczs(v=VS.100).aspx
 .    
-    Éléments du langage des expressions régulières :
+    Ã‰lÃ©ments du langage des expressions rÃ©guliÃ¨res :
      http://msdn.microsoft.com/fr-fr/library/az24scfc(v=VS.80).aspx
 .
-    Compilation et réutilisation de regex :
+    Compilation et rÃ©utilisation de regex :
      http://msdn.microsoft.com/fr-fr/library/8zbs0h2f(vs.80).aspx     
 .
 .
     Au coeur des dictionnaires en .Net 2.0 :
      http://mehdi-fekih.developpez.com/articles/dotnet/dictionnaires
 .
-    Outil de création d'expression régulière, info et Tips
+    Outil de crÃ©ation d'expression rÃ©guliÃ¨re, info et Tips
     pour PowerShell :
      http://powershell-scripting.com/index.php?option=com_joomlaboard&Itemid=76&func=view&catid=4&id=3731  
 .
@@ -719,7 +723,7 @@ rem ...
     http://projets.developpez.com/projects/add-libv2/wiki/Replace-String
 
 .COMPONENT
-    expression régulière
+    expression rÃ©guliÃ¨re
     
 .ROLE
     Server Administrator
@@ -741,8 +745,8 @@ rem ...
           [ValidateNotNull()]
           [AllowEmptyString()]
            #pas de position 
-           #si on n'utilise pas le pipe on doit préciser son nom -InputObject ou -I
-           #le paramètre suivant sera considéré comme étant en position 0, car innommé 
+           #si on n'utilise pas le pipe on doit prÃ©ciser son nom -InputObject ou -I
+           #le paramÃ¨tre suivant sera considÃ©rÃ© comme Ã©tant en position 0, car innommÃ© 
           [Parameter(Mandatory=$true,ValueFromPipeline = $true)]
         [System.Management.Automation.PSObject] $InputObject,
          
@@ -760,37 +764,37 @@ rem ...
 
 
   begin {
-     #Section DATA + ConvertFrom-StringData problème d'analyse avec le caractère = 
+     #Section DATA + ConvertFrom-StringData problÃ¨me d'analyse avec le caractÃ¨re = 
     $TextMsgs =@{ 
                                          #fr-FR
-       WellFormedKeyNullOrEmptyValue  = "La clé n'existe pas ou sa valeur est `$null"
-       WellFormedInvalidCast          = "La valeur de la clé {0} ne peut pas être convertie en {1}."
-       WellFormedInvalidValueNotLower = "La valeur de la clé ne peut pas être inférieur à -1."
-       WellFormedInvalidValueNotZero  = "La valeur de la clé doit être supérieure à zéro."
-       ReplaceSimpleEmptyString       = "L'option SimpleReplace ne permet pas une chaîne de recherche vide."
+       WellFormedKeyNullOrEmptyValue  = "La clÃ© n'existe pas ou sa valeur est `$null"
+       WellFormedInvalidCast          = "La valeur de la clÃ© {0} ne peut pas Ãªtre convertie en {1}."
+       WellFormedInvalidValueNotLower = "La valeur de la clÃ© ne peut pas Ãªtre infÃ©rieur Ã  -1."
+       WellFormedInvalidValueNotZero  = "La valeur de la clÃ© doit Ãªtre supÃ©rieure Ã  zÃ©ro."
+       ReplaceSimpleEmptyString       = "L'option SimpleReplace ne permet pas une chaÃ®ne de recherche vide."
        ReplaceRegExCreate             = "[Construction de regex] {0}"
-       ReplaceRegExStarAt             = "{0}`r`nStartAt({1}) est supérieure à la longueur de la chaîne({2})"
-       ReplaceObjectPropertyNotString = "La propriété n'est pas du type string."
-       ReplaceObjectPropertyReadOnly = "La propriété est en lecture seule."
+       ReplaceRegExStarAt             = "{0}`r`nStartAt({1}) est supÃ©rieure Ã  la longueur de la chaÃ®ne({2})"
+       ReplaceObjectPropertyNotString = "La propriÃ©tÃ© n'est pas du type string."
+       ReplaceObjectPropertyReadOnly = "La propriÃ©tÃ© est en lecture seule."
        #ReplaceRegexObjectPropertyError  = $_.Exception.Message
        #ReplaceStringObjectPropertyError = $_.Exception.Message
        #StringReplaceRegexError          = $_.Exception.Message
        ReplaceSimpleScriptBlockError  = "{0}={{{1}}}`r`n{2}"
-       ObjectReplaceShouldProcess     = "Objet [{0}] Propriété : {1}"
+       ObjectReplaceShouldProcess     = "Objet [{0}] PropriÃ©tÃ©Â : {1}"
        StringReplaceShouldProcess     = "{0} par {1}"
-       WarningSwitchSimpleReplace     = "Le switch SimpleReplace n'utilise pas toutes les fonctionnalités d'une hashtable de type @{Replace='X';Max=n;StartAt=n,Options='Y'}.`r`n Utilisez une simple chaîne de caractères."
-       WarningConverTo                = "La conversion, par ConverTo(), renvoi une chaîne vide.`r`n{0}"
+       WarningSwitchSimpleReplace     = "Le switch SimpleReplace n'utilise pas toutes les fonctionnalitÃ©s d'une hashtable de type @{Replace='X';Max=n;StartAt=n,Options='Y'}.`r`n Utilisez une simple chaÃ®ne de caractÃ¨res."
+       WarningConverTo                = "La conversion, par ConverTo(), renvoi une chaÃ®ne vide.`r`n{0}"
        
     } #TextMsgs
    
      function New-Exception($Exception,$Message=$null) {
-      #Crée et renvoi un objet exception pour l'utiliser avec $PSCmdlet.WriteError()
+      #CrÃ©e et renvoi un objet exception pour l'utiliser avec $PSCmdlet.WriteError()
       
-         #Le constructeur de la classe de l'exception trappée est inaccessible  
+         #Le constructeur de la classe de l'exception trappÃ©e est inaccessible  
         if ($Exception.GetType().IsNotPublic)
          {
            $ExceptionClassName="System.Exception"
-            #On mémorise l'exception courante. 
+            #On mÃ©morise l'exception courante. 
            $InnerException=$Exception
          }
         else
@@ -801,17 +805,17 @@ rem ...
         if ($Message -eq $null)
          {$Message=$Exception.Message}
           
-         #Recrée l'exception trappée avec un message personnalisé 
+         #RecrÃ©e l'exception trappÃ©e avec un message personnalisÃ© 
     		New-Object $ExceptionClassName($Message,$InnerException)       
      } #New-Exception
    
      Function Test-InputObjectProperty($CurrentProperty) {
-      #Valide les prérequis d'une propriété d'objet
-      #Doit exister, être de type [String] et être en écriture.
-         #On ne traite que les propriétés de type [string]
+      #Valide les prÃ©requis d'une propriÃ©tÃ© d'objet
+      #Doit exister, Ãªtre de type [String] et Ãªtre en Ã©criture.
+         #On ne traite que les propriÃ©tÃ©s de type [string]
        if ($CurrentProperty.TypeNameOfValue -ne "System.String")
         {throw (New-Object System.ArgumentException($TextMsgs.ReplaceObjectPropertyNotString,$CurrentProperty.Name)) }                       
-         #On ne traite que les propriétés proposant un setter
+         #On ne traite que les propriÃ©tÃ©s proposant un setter
        if (-not $CurrentProperty.IsSettable)
         {throw (New-Object System.ArgumentException($TextMsgs.ReplaceObjectPropertyReadOnly,$CurrentProperty.Name)) } 
      }#Test-InputObjectProperty
@@ -819,30 +823,30 @@ rem ...
     function ConvertTo-String($Value){
        #Conversion PowerShell
        #Par exemple converti $T=@("un","Deux") en "un deux"
-       # ce qui est équivalent à "$T"
+       # ce qui est Ã©quivalent Ã  "$T"
        #Au lieu de System.Object[] si on utilise $InputObject.ToString()
-       #De plus un PSObject peut ne pas avoir de méthode ToString()
+       #De plus un PSObject peut ne pas avoir de mÃ©thode ToString()
      [System.Management.Automation.LanguagePrimitives]::ConvertTo($Value,
                                                                    [string],
                                                                    [System.Globalization.CultureInfo]::InvariantCulture)
     }#ConvertTo-String
     
     function Convert-DictionnaryEntry($Parameters) 
-    {   #Converti un DictionnaryEntry en une string "clé=valeur clé=valeur..." 
+    {   #Converti un DictionnaryEntry en une string "clÃ©=valeur clÃ©=valeur..." 
       "$($Parameters.GetEnumerator()|% {"$($_.key)=$($_.value)"})"
     }#Convert-DictionnaryEntry
   
     function New-ObjectReplaceInfo{ 
-       #Crée un objet contenant le résultat d'un remplacement
-       #Permet d'émettre la chaîne modifiée et de savoir si 
+       #CrÃ©e un objet contenant le rÃ©sultat d'un remplacement
+       #Permet d'Ã©mettre la chaÃ®ne modifiÃ©e et de savoir si 
        # une modification a eu lieu.
       $Result=New-Object PSObject -Property @{
-         #Contient le résultat d'exécution de chaque entrée
+         #Contient le rÃ©sultat d'exÃ©cution de chaque entrÃ©e
         Replaces=New-Object System.Collections.ArrayList(6)
-         #Indique si $InputObject a été modifié ou non 
+         #Indique si $InputObject a Ã©tÃ© modifiÃ© ou non 
         isSuccess=$False
          #Contient la valeur de retour de $InputObject,
-         #qu'il ait été modifié ou non. 
+         #qu'il ait Ã©tÃ© modifiÃ© ou non. 
         Value=$Null 
       }
      $Result.PsObject.TypeNames[0] = "PSReplaceInfo"
@@ -850,19 +854,19 @@ rem ...
     }#New-ObjectReplaceInfo
   
     function isParameterWellFormed($Parameters) {
-     #Renvoi true si l'entrée de hashtable $Parameters est correcte
-     #la recherche préliminaire par ContainsKey est dicté par la possible 
-     #déclaration de set-strictmode -version 2.0
+     #Renvoi true si l'entrÃ©e de hashtable $Parameters est correcte
+     #la recherche prÃ©liminaire par ContainsKey est dictÃ© par la possible 
+     #dÃ©claration de set-strictmode -version 2.0
     #Replace 
       if (-not $Parameters.ContainsKey('Replace') -or ($Parameters.Replace -eq $null))
-      {  #[string]::Empty est valide, même pour la clé
+      {  #[string]::Empty est valide, mÃªme pour la clÃ©
   			 $PSCmdlet.WriteError(
           (New-Object System.Management.Automation.ErrorRecord(
               #inverse nomParam,msg 
      				 (New-Object System.ArgumentNullException('Replace',$TextMsgs.WellFormedKeyNullOrEmptyValue)), 
                "WellFormedKeyNullOrEmptyValue", 
                "InvalidData",
-               $ParameterString # Si $ErrorView="CategoryView" l'information est affichée
+               $ParameterString # Si $ErrorView="CategoryView" l'information est affichÃ©e
            )
           ) 
          )#WriteError
@@ -957,7 +961,7 @@ rem ...
        {$Parameters.Options="IgnoreCase"}
       else 
        {
-          #La présence d'espaces ne gêne pas la conversion.
+          #La prÃ©sence d'espaces ne gÃªne pas la conversion.
          $Parameters.Options=(ConvertTo-String $Parameters.Options) -as [System.Text.RegularExpressions.RegexOptions]
          if ($Parameters.Options -eq $null)
           { 
@@ -982,11 +986,11 @@ rem ...
        Foreach {
          $Parameters=$_.Value
          $WrongDictionnaryEntry=$false
-            #Analyse la valeur de l'entrée courante de $Hashtable
-            #puis la transforme en un type hashtable 'normalisée' 
+            #Analyse la valeur de l'entrÃ©e courante de $Hashtable
+            #puis la transforme en un type hashtable 'normalisÃ©e' 
          if ($Parameters -is [System.Collections.IDictionary])
           {  #On ne modifie pas la hashtable d'origine
-             #Les objets référencés ne sont pas cloné, on duplique l'adresse.
+             #Les objets rÃ©fÃ©rencÃ©s ne sont pas clonÃ©, on duplique l'adresse.
             $Parameters=$Parameters.Clone()
             
             $ParameterString="$($_.Key) = @{$(Convert-DictionnaryEntry $Parameters)}"
@@ -998,8 +1002,8 @@ rem ...
              { $PSCmdlet.WriteWarning($TextMsgs.WarningSwitchSimpleReplace) }  
           }#-is [System.Collections.IDictionary] 
          else 
-          {   #Dans tous les cas on utilise une hashtable normalisée
-              #pour récupèrer les paramètres.
+          {   #Dans tous les cas on utilise une hashtable normalisÃ©e
+              #pour rÃ©cupÃ¨rer les paramÃ¨tres.
              if ($Parameters -eq $null)
               {$Parameters=[String]::Empty}  
              $Parameters=@{Replace=$Parameters;Max=-1;StartAt=0;Options="IgnoreCase"}
@@ -1007,9 +1011,9 @@ rem ...
 
          if  ($_.Key -isnot [String])
           { 
-             #La clé peut être un objet,
-             #on tente une conversion de la clé en [string].
-             #On laisse la possibilité de dupliquer les clés
+             #La clÃ© peut Ãªtre un objet,
+             #on tente une conversion de la clÃ© en [string].
+             #On laisse la possibilitÃ© de dupliquer les clÃ©s
              #issues de cette conversion.
            [string]$Key= ConvertTo-String $_.Key
            if ($Key -eq [string]::Empty)
@@ -1039,8 +1043,8 @@ rem ...
              #Construit les regex
             if (-not $SimpleReplace)
              {
-                 #Construit une expression régulière dont le pattern est 
-                 #le nom de la clé de l'entrée courante de $TabKeyValue
+                 #Construit une expression rÃ©guliÃ¨re dont le pattern est 
+                 #le nom de la clÃ© de l'entrÃ©e courante de $TabKeyValue
                try
                { 
                  $Expression=New-Object System.Text.RegularExpressions.RegEx($Key,$Parameters.Options)
@@ -1055,25 +1059,25 @@ rem ...
                      )  
                   )
                  )#WriteError
-                 $PSCmdlet.WriteDebug("Regex erronée, remplacement suivant.")
+                 $PSCmdlet.WriteDebug("Regex erronÃ©e, remplacement suivant.")
                  $RegExError=$True 
                }
              }
             if (-not $RegExError)
                #Si on utilise un simple arraylist 
-               # les propriétés personnalisées sont perdues
+               # les propriÃ©tÃ©s personnalisÃ©es sont perdues
              { [void]$TabKeyValue.Add($DEntry) }
-          } #sinon on ne crée pas l'entrée invalide
+          } #sinon on ne crÃ©e pas l'entrÃ©e invalide
        }#Foreach       
     }#BuildList
     
     $PSCmdlet.WriteDebug("ParameterSetName :$($PsCmdlet.ParameterSetName)")  
-     #Manipule-t-on une chaîne ou un objet ?
+     #Manipule-t-on une chaÃ®ne ou un objet ?
     [Switch] $AsObject= $PSBoundParameters.ContainsKey('Property')
     $PSCmdlet.WriteDebug("AsObject: $AsObject")
     
      #On doit explicitement rechercher 
-     #la présence des paramètres communs
+     #la prÃ©sence des paramÃ¨tres communs
     [Switch] $Whatif= $null
     [void]$PSBoundParameters.TryGetValue('Whatif',[REF]$Whatif)
     
@@ -1082,7 +1086,7 @@ rem ...
      if ($AsObject) # Si set-strictmode -version 2.0 
       {$PSCmdlet.WriteDebug("Properties : $Property")} 
     
-      #On construit une liste afin de filtrer les éléments invalides
+      #On construit une liste afin de filtrer les Ã©lÃ©ments invalides
       #et faciliter l'usage de break/continue dans la boucle du 
       #traitement principal du bloc process.
     $TabKeyValue=New-Object 'System.Collections.Generic.List[PSObject]'
@@ -1101,11 +1105,11 @@ rem ...
   }#begin
 
   process {
-    #Si $TabKeyValue ne contient aucun élément,
-    #on construit tout de même l'object ReplaceInfo 
+    #Si $TabKeyValue ne contient aucun Ã©lÃ©ment,
+    #on construit tout de mÃªme l'object ReplaceInfo 
      
     if ($InputObject -isnot [String]) 
-    {  #Si on ne manipule pas les propriétés d'un objet,
+    {  #Si on ne manipule pas les propriÃ©tÃ©s d'un objet,
        #on force la conversion en [string]. 
       if ($AsObject -eq $false)
        {
@@ -1115,30 +1119,30 @@ rem ...
           { $PSCmdlet.WriteWarning(($TextMsgs.WarningConverTo -F $ObjTemp))}   
        } 
     }
-     #on crée l'objet contenant 
-     #la collection de résultats détaillés
+     #on crÃ©e l'objet contenant 
+     #la collection de rÃ©sultats dÃ©taillÃ©s
     if ($ReplaceInfo)
      {$Resultat=New-ObjectReplaceInfo}  
     
-     #Savoir si au moins une opération de remplacement a réussie.
+     #Savoir si au moins une opÃ©ration de remplacement a rÃ©ussie.
     [Boolean] $AllSuccessReplace=$false     
     
     for ($i=0; $i -lt $TabKeyValue.Count; $i++) {
-       #$Key contient la chaîne à rechercher
+       #$Key contient la chaÃ®ne Ã  rechercher
       $Key=$TabKeyValue[$i].Key
 
        #$parameters contient les informations de remplacement
       $Parameters=$TabKeyValue[$i].Value
       
-       #L'opération de remplacement courante a-t-elle réussie ?
+       #L'opÃ©ration de remplacement courante a-t-elle rÃ©ussie ?
       [Boolean] $CurrentSuccessReplace=$false
       
       if ($ReplaceInfo)
-       {  #Crée, pour la clé courante, un objet résultat 
+       {  #CrÃ©e, pour la clÃ© courante, un objet rÃ©sultat 
          if ($AsObject)
-            #on ne crée pas de référence sur l'objet, 
-            #car les champs Old et New pointe sur le même objet.
-            #Seul les champs pattern et Key sont renseignés.  
+            #on ne crÃ©e pas de rÃ©fÃ©rence sur l'objet, 
+            #car les champs Old et New pointe sur le mÃªme objet.
+            #Seul les champs pattern et Key sont renseignÃ©s.  
           {$CurrentListItem=New-Object PSObject -Property @{Old=$Null;New=$Null;isSuccess=$False;Pattern=$Key} }
          else
           {$CurrentListItem=New-Object PSObject -Property @{Old=$InputObject;New=$null;isSuccess=$False;Pattern=$Key} } 
@@ -1150,10 +1154,10 @@ rem ...
 On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
 "@)      
       if ($SimpleReplace) 
-      {  #Récupère la chaîne de remplacement
+      {  #RÃ©cupÃ¨re la chaÃ®ne de remplacement
         if ($Parameters.Replace -is [ScriptBlock]) 
          { try {
-              #$ReplaceValue contiendra la chaîne de remplacement
+              #$ReplaceValue contiendra la chaÃ®ne de remplacement
              $ReplaceValue=&$Parameters.Replace
              $PSCmdlet.WriteDebug("`t[ScriptBlock] $($Parameters.Replace)`r`n$ReplaceValue") 
            } catch {
@@ -1172,34 +1176,34 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
         else 
          {$ReplaceValue=$Parameters.Replace} 
          
-          #On traite des propriétés d'un objet
+          #On traite des propriÃ©tÃ©s d'un objet
         if ($AsObject)  
          { 
             $Property|
-              #prérequis: Le nom de la propriété courante ne pas doit pas être null ni vide.
-              #On recherche les propriétés à chaque fois, on laisse ainis la possibilité au 
-              # code d'un scriptblock de modifier/ajouter des propriétés dynamiquement sur 
-              # le paramètre $InputObject.
-              #Celui-ci doit être de type PSObject pour être modifié directement, sinon
-              #seul l'objet renvoyé sera concerné. 
+              #prÃ©requis: Le nom de la propriÃ©tÃ© courante ne pas doit pas Ãªtre null ni vide.
+              #On recherche les propriÃ©tÃ©s Ã  chaque fois, on laisse ainis la possibilitÃ© au 
+              # code d'un scriptblock de modifier/ajouter des propriÃ©tÃ©s dynamiquement sur 
+              # le paramÃ¨tre $InputObject.
+              #Celui-ci doit Ãªtre de type PSObject pour Ãªtre modifiÃ© directement, sinon
+              #seul l'objet renvoyÃ© sera concernÃ©. 
              Foreach-object {
                 $PSCmdlet.WriteDebug("[Traitement des wildcards] $_")
-                # Ex : Pour PS* on récupère plusieurs propriétés
-                #La liste contient toutes les propriétés ( .NET + PS).
-                #Si la propriété courante ne match pas, on itère sur les éléments de $Property 
+                # Ex : Pour PS* on rÃ©cupÃ¨re plusieurs propriÃ©tÃ©s
+                #La liste contient toutes les propriÃ©tÃ©s ( .NET + PS).
+                #Si la propriÃ©tÃ© courante ne match pas, on itÃ¨re sur les Ã©lÃ©ments de $Property 
                $InputObject.PSObject.Properties.Match($_)|
                Foreach-Object { 
                   $PSCmdlet.WriteDebug("[Wildcard property]$_")
                   $CurrentProperty=$_
                   $CurrentPropertyName=$CurrentProperty.Name
                   try {
-                      #Si -Whatif n'est pas précisé on exécute le traitement
+                      #Si -Whatif n'est pas prÃ©cisÃ© on exÃ©cute le traitement
                     if ($PSCmdlet.ShouldProcess(($TextMsgs.ObjectReplaceShouldProcess -F $InputObject.GetType().Name,$CurrentPropertyName)))
                      {                     
                         #Logiquement il ne devrait y avoir qu'un bloc ShouldProcess
                         #englobant tous les traitements, ici cela permet d'afficher 
-                        #le détails des opérations imbriquées tout en précisant 
-                        #les valeurs effectives utilisées lors du remplacement. 
+                        #le dÃ©tails des opÃ©rations imbriquÃ©es tout en prÃ©cisant 
+                        #les valeurs effectives utilisÃ©es lors du remplacement. 
                        Test-InputObjectProperty $CurrentProperty
                        $PSCmdlet.WriteDebug("`t[String-Before][Object] : $InputObject.$CurrentPropertyName")
                        $OriginalProperty=$InputObject.$CurrentPropertyName
@@ -1210,13 +1214,13 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                        $PSCmdlet.WriteDebug("`t[String-After][Object] : $InputObject.$CurrentPropertyName")
                      }#ShouldProcess
                   } catch {
-                      #La propriété est en R/O,
-                      #La propriété n'est pas du type String, etc. 
+                      #La propriÃ©tÃ© est en R/O,
+                      #La propriÃ©tÃ© n'est pas du type String, etc. 
                       
-                      #Par défaut recrée l'exception trappée avec un message personnalisé 
+                      #Par dÃ©faut recrÃ©e l'exception trappÃ©e avec un message personnalisÃ© 
                      $PSCmdlet.WriteError(
                       (New-Object System.Management.Automation.ErrorRecord (
-                           #Recrée l'exception trappée avec un message personnalisé 
+                           #RecrÃ©e l'exception trappÃ©e avec un message personnalisÃ© 
                  				  $_.Exception, 
                           "ReplaceStringObjectPropertyError", 
                           "InvalidOperation",
@@ -1244,7 +1248,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
         $Expression=($TabKeyValue[$i]).Regex
         $PSCmdlet.WriteDebug("`t[Regex] : $($expression.ToString()) $($Expression|select *)")
          
-         #Récupère la chaîne de remplacement
+         #RÃ©cupÃ¨re la chaÃ®ne de remplacement
         if  (($Parameters.Replace -isnot [String]) -and ($Parameters.Replace -isnot [ScriptBlock])) 
          {
              #Appel soit 
@@ -1252,24 +1256,24 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
              # soit
              #  Regex.Replace (String, MatchEvaluator, Int32, Int32)
              # 
-             #On évite, selon le type du paramètre fourni, un possible problème 
-             #de cast lors de l'exécution interne de la recherche de la signature 
-             #la plus adaptée (Distance Algorithm). 
+             #On Ã©vite, selon le type du paramÃ¨tre fourni, un possible problÃ¨me 
+             #de cast lors de l'exÃ©cution interne de la recherche de la signature 
+             #la plus adaptÃ©e (Distance Algorithm). 
              # cf. ([regex]"\d").Replace.OverloadDefinitions 
              # "test 123"|Replace-String @{"\d"=get-date}
-             # Error : Impossible de convertir l'argument « 1 » (valeur « 17/07/2010 13:31:56 ») de « Replace » 
-             #  en type « System.Text.RegularExpressions.MatchEvaluator » 
+             # Error : Impossible de convertir l'argument Â«Â 1Â Â» (valeur Â«Â 17/07/2010 13:31:56Â Â») de Â«Â ReplaceÂ Â» 
+             #  en type Â«Â System.Text.RegularExpressions.MatchEvaluatorÂ Â»Â 
              #
              #InvalidCastException :
-             #Cette exception se produit lorsqu'une conversion particulière n'est pas prise en charge.
-             #Un InvalidCastException est levé pour les conversions suivantes :
+             #Cette exception se produit lorsqu'une conversion particuliÃ¨re n'est pas prise en charge.
+             #Un InvalidCastException est levÃ© pour les conversions suivantes :
              # - Conversions de DateTime en tout autre type sauf String.
              # ...
              #Autre solution :
              # "test 123"|Replace-String @{"\d"=@(get-date)}
-             #Mais cette solution apporte un autre problème, dans ce cas on utilise plus la culture courante,
-             # mais celle US, car le scriptblock est exécuté dans un contexte où les conversions de chaînes de 
-             #caractères en dates se font en utilisant les informations de la classe .NET InvariantCulture.
+             #Mais cette solution apporte un autre problÃ¨me, dans ce cas on utilise plus la culture courante,
+             # mais celle US, car le scriptblock est exÃ©cutÃ© dans un contexte oÃ¹ les conversions de chaÃ®nes de 
+             #caractÃ¨res en dates se font en utilisant les informations de la classe .NET InvariantCulture.
              #cf. http://janel.spaces.live.com/blog/cns!9B5AA3F6FA0088C2!185.entry      
            $PSCmdlet.WriteDebug( "`t[ConverTo] $($Parameters.Replace.GetType())")
            [string]$ReplaceValue=ConvertTo-String $Parameters.Replace
@@ -1277,14 +1281,14 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
         else 
          {$ReplaceValue=$Parameters.Replace }
 
-          #On traite des propriétés d'un objet
+          #On traite des propriÃ©tÃ©s d'un objet
         if ($AsObject)
          { 
             $Property|
-               # Le nom de la propriété courante ne pas doit pas être null ni vide.
+               # Le nom de la propriÃ©tÃ© courante ne pas doit pas Ãªtre null ni vide.
               Foreach-object {
                 $PSCmdlet.WriteDebug("[Traitement des wildcards]$_")
-                # Ex : Pour PS* on récupère plusieurs propriétés 
+                # Ex : Pour PS* on rÃ©cupÃ¨re plusieurs propriÃ©tÃ©s 
                $InputObject.PSObject.Properties.Match($_)|
                Foreach-object { 
                   $PSCmdlet.WriteDebug("[Wildcard property]$_")
@@ -1295,7 +1299,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                       { 
                         Test-InputObjectProperty $CurrentProperty
                         $PSCmdlet.WriteDebug("`t[RegEx-Before][Object] $CurrentPropertyName : $($InputObject.$CurrentPropertyName)")
-                            #On ne peut rechercher au delà de la longueur de la chaîne.
+                            #On ne peut rechercher au delÃ  de la longueur de la chaÃ®ne.
                         if (($InputObject.$CurrentPropertyName).Length -ge $Parameters.StartAt)
                          {
                            $isMatch=$Expression.isMatch($InputObject.$CurrentPropertyName,$Parameters.StartAt)
@@ -1312,18 +1316,18 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                            $isMatch=$false
                          }
                         $PSCmdlet.WriteDebug("`t[RegEx][Object] ismatch : $ismatch")
-                         #On ne mémorise pas les infos de remplacement (replaceInfo) pour les propriétés,
-                         #seulement pour les clés (pattern)
+                         #On ne mÃ©morise pas les infos de remplacement (replaceInfo) pour les propriÃ©tÃ©s,
+                         #seulement pour les clÃ©s (pattern)
                         if (-not $CurrentSuccessReplace)
                          {$CurrentSuccessReplace=$isMatch }
                       }#ShouldProcess
                   } catch {
                       $isMatch=$False #l'erreur peut provenir du ScriptBlock (MachtEvaluator)
-                      #La propriété est en R/O, 
-                      #La propriété n'est pas du type String, etc. 
+                      #La propriÃ©tÃ© est en R/O, 
+                      #La propriÃ©tÃ© n'est pas du type String, etc. 
                       $PSCmdlet.WriteError(
                        (New-Object System.Management.Automation.ErrorRecord (
-                            #Recrée l'exception trappée avec un message personnalisé 
+                            #RecrÃ©e l'exception trappÃ©e avec un message personnalisÃ© 
                  			  	 $_.Exception,                       
                            "ReplaceRegexObjectPropertyError", 
                            "InvalidOperation",
@@ -1340,7 +1344,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
             if ($PSCmdlet.ShouldProcess(($TextMsgs.StringReplaceShouldProcess -F $Key,$ReplaceValue)))
              { 
                 $PSCmdlet.WriteDebug("`t[RegEx-Before] : $InputObject")
-                  #On ne peut rechercher au delà de la longueur de la chaîne.
+                  #On ne peut rechercher au delÃ  de la longueur de la chaÃ®ne.
                 if ($InputObject.Length -ge $Parameters.StartAt)
                  {
                    $isMatch=$Expression.isMatch($InputObject,$Parameters.StartAt)
@@ -1352,7 +1356,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
                          $isMatch=$False #l'erreur peut provenir du ScriptBlock (MachtEvaluator)
                          $PSCmdlet.WriteError(
                           (New-Object System.Management.Automation.ErrorRecord (
-                               #Recrée l'exception trappée avec un message personnalisé 
+                               #RecrÃ©e l'exception trappÃ©e avec un message personnalisÃ© 
                      		  	 $_.Exception,                         
                              "StringReplaceRegexError", 
                              "InvalidOperation",
@@ -1376,17 +1380,17 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
       }#Replace via RegEx
 
       #On construit la liste PSReplaceInfo.PSReplaceInfoItem 
-      #contenant le résultat de l'opération courante.
+      #contenant le rÃ©sultat de l'opÃ©ration courante.
      if ($ReplaceInfo)
      { 
-         #Si Whatif est précisé l'opération n'est pas effectuée
+         #Si Whatif est prÃ©cisÃ© l'opÃ©ration n'est pas effectuÃ©e
          #On ne renvoit rien dans le pipeline
         if (-not $Whatif)
         {
           if (($AsObject -eq $False) -and $CurrentSuccessReplace)
-          { $CurrentListItem.New=$InputObject } #todo bug ? new n'est pas renseigné  
+          { $CurrentListItem.New=$InputObject } #todo bug ? new n'est pas renseignÃ©  
           elseif ($CurrentSuccessReplace)
-          { $CurrentListItem.New='Pas renseigné' } #todo bug ? new n'est pas renseigné          
+          { $CurrentListItem.New='Pas renseignÃ©' } #todo bug ? new n'est pas renseignÃ©          
            #On affecte une seule fois la valeur $true 
           if (-not $AllSuccessReplace)
           { $AllSuccessReplace=$CurrentSuccessReplace }
@@ -1396,31 +1400,31 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
        }#$Whatif
      }#$ReplaceInfo
 
-      #Est-ce qu'on effectue une seule opération de remplacement ?
+      #Est-ce qu'on effectue une seule opÃ©ration de remplacement ?
      if ($Unique -and $CurrentSuccessReplace)
       {
-        $PSCmdlet.WriteDebug("-Unique détecté et le dernier remplacement a réussi. Break.")
+        $PSCmdlet.WriteDebug("-Unique dÃ©tectÃ© et le dernier remplacement a rÃ©ussi. Break.")
         break #oui, on quitte le bloc For
       } 
    }# For $TabKeyValue.Count
    
    if (-not $Whatif)
    {
-       #Emission du résultat
-       #On a effectué n traitements sur une seule ligne ou un seul object
+       #Emission du rÃ©sultat
+       #On a effectuÃ© n traitements sur une seule ligne ou un seul object
       if ($ReplaceInfo)
       { 
         $Resultat.isSuccess=$AllSuccessReplace
         $Resultat.Value=$InputObject
-         #En cas d'émission sur un cmdlet, utilisant Value comme
-         #propriété de binding (ValueFromPipelineByPropertyName),
-         #on redéclare la méthode ToString afin que l'objet $Resultat 
-         #renvoie le contenu de son membre Value comme donnée à lier.
+         #En cas d'Ã©mission sur un cmdlet, utilisant Value comme
+         #propriÃ©tÃ© de binding (ValueFromPipelineByPropertyName),
+         #on redÃ©clare la mÃ©thode ToString afin que l'objet $Resultat 
+         #renvoie le contenu de son membre Value comme donnÃ©e Ã  lier.
         $Resultat=$Resultat|Add-member ScriptMethod ToString {$this.Value} -Force -Passthru
-          #Passe un tableau d'objet contenant un élément, un objet.
-          #PS énumére le tableau et renvoi un seul objet.
+          #Passe un tableau d'objet contenant un Ã©lÃ©ment, un objet.
+          #PS Ã©numÃ©re le tableau et renvoi un seul objet.
           #
-          #Dans ce contexte ceci est valable, même
+          #Dans ce contexte ceci est valable, mÃªme
           #si l'objet est un IEnumerable.
         $PSCmdlet.WriteObject(@($Resultat),$true) 
       }#$ReplaceInfo
@@ -1432,4 +1436,4 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
  }#process
 }#Replace-String
 
-new-alias rpls Replace-String  -description "Fonction auto-documentée Replace-String" -force 
+new-alias rpls Replace-String  -description "Fonction auto-documentÃ©e Replace-String" -force 

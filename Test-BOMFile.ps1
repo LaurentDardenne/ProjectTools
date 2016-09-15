@@ -1,4 +1,20 @@
-﻿param (
+﻿<#PSScriptInfo
+.VERSION 1.0
+.GUID 355ed1fd-1ba1-4ec6-9845-6be09c1af9fe 
+.AUTHOR Laurent Dardenne
+.COMPANYNAME
+.COPYRIGHT CopyLeft
+.TAGS File BOM
+.LICENSEURI https://creativecommons.org/licenses/by-nc-sa/4.0
+.PROJECTURI https://github.com/LaurentDardenne/ProjectTools
+.ICONURI
+.EXTERNALMODULEDEPENDENCIES
+.REQUIREDSCRIPTS
+.EXTERNALSCRIPTDEPENDENCIES
+.RELEASENOTES version 1.0
+.DESCRIPTION Test la présence d'un BOM sur un fichier 
+#>
+param (
  [Parameter(mandatory=$true)]
  $Path
 )
