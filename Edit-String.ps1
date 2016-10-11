@@ -1,11 +1,11 @@
 ﻿<#PSScriptInfo
 
-.VERSION 1.1.0
+.VERSION 1.3.0
 .GUID 9fcc3ac5-5135-4c0c-bed3-f0e8e7aedb84
 .AUTHOR Laurent Dardenne
 .COMPANYNAME
 .COPYRIGHT CopyLeft
-.TAGS Replace Regex Template String
+.TAGS Replace Regex Template String Edit
 .LICENSEURI https://creativecommons.org/licenses/by-nc-sa/4.0
 .PROJECTURI https://github.com/LaurentDardenne/ProjectTools
 .ICONURI
@@ -15,7 +15,7 @@
 .RELEASENOTES 22 août 2010
 .DESCRIPTION  Remplace toutes les occurrences d'un modèle de caractère, défini par une chaîne de caractère simple ou par une expression régulière, par une chaîne de caractères de remplacement.
 #>
-Function Replace-String{
+Function Edit-String{
 <#
 .SYNOPSIS
     Remplace toutes les occurrences d'un modèle de caractère, défini par 
@@ -23,7 +23,7 @@ Function Replace-String{
     chaîne de caractères de remplacement.
  
 .DESCRIPTION
-    La fonction Replace-String remplace dans une chaîne de caractères toutes 
+    La fonction Edit-String remplace dans une chaîne de caractères toutes 
     les occurrences d'une chaîne de caractères par une autre chaîne de caractères.
     Le contenu de la chaîne recherchée peut-être soit une chaîne de caractère 
     simple soit une expression régulière. 
@@ -248,7 +248,7 @@ Function Replace-String{
     $h=@{}
     $h."a"="?"
     $h."\d"='X'
-    Replace-String -i $s $h 
+    Edit-String -i $s $h 
 .        
     Description
     -----------
@@ -265,7 +265,7 @@ Function Replace-String{
     C?r?ctères : XX \d\d
 . 
 .         
-    La hashtable $H contenant deux entrées, Replace-String effectuera deux 
+    La hashtable $H contenant deux entrées, Edit-String effectuera deux 
     opérations de remplacement sur la chaîne $S. 
 .    
     Ces deux opérations sont équivalentes à la suite d'instructions suivantes :
@@ -278,7 +278,7 @@ Function Replace-String{
     $h=@{}
     $h."a"="?"
     $h."\d"='X'
-    Replace-String -i $s $h -SimpleReplace
+    Edit-String -i $s $h -SimpleReplace
 .        
     Description
     -----------
@@ -292,7 +292,7 @@ Function Replace-String{
     Le résultat, de type chaîne de caractères, est égal à : 
     C?r?ctères : 33 XX
 .         
-    La hashtable $H contenant deux entrées, Replace-String effectuera deux 
+    La hashtable $H contenant deux entrées, Edit-String effectuera deux 
     opérations de remplacement sur la chaîne $S. 
 .    
     Ces deux opérations sont équivalentes à la suite d'instructions suivantes :
@@ -307,7 +307,7 @@ Function Replace-String{
     $h=@{}
     $h."a"="?"
     $h."\d"='X'
-    Replace-String -i $s $h -Unique 
+    Edit-String -i $s $h -Unique 
 . 
     Description
     -----------
@@ -326,7 +326,7 @@ Function Replace-String{
     $h."a"="?"
      #Substitution à l'aide de capture nommée
     $h."(?<Chiffre>\d)"='${Chiffre}X'
-    $S|Replace-String $h 
+    $S|Edit-String $h 
     
     Description
     -----------
@@ -350,7 +350,7 @@ Function Replace-String{
     $h."a"="?"
     $h."(?<Chiffre>\d)"='${Chiffre}X'
     $h.":"={ Write-Warning "Call delegate"; return "<$($args[0])>"}    
-    $S|Replace-String $h 
+    $S|Edit-String $h 
     
     Description
     -----------
@@ -380,7 +380,7 @@ Function Replace-String{
     $h=@{}
     $h."a"=@{Replace="?";StartAt=3;Options="IgnoreCase"} 
     $h."\d"=@{Replace='X';Max=1}
-    $S|Replace-String $h 
+    $S|Edit-String $h 
     
     Description
     -----------
@@ -408,15 +408,15 @@ Function Replace-String{
     $h=@{}
     $h."Date"=(Get-Date).ToString("dddd d MMMM yyyy")
     $h."mot"="Date"
-    $s|Replace-String $h -unique|Write-host -Fore White
-    $s|Replace-String $h|Write-host -Fore White 
+    $s|Edit-String $h -unique|Write-host -Fore White
+    $s|Edit-String $h|Write-host -Fore White 
     #
     #
     $od=new-object System.Collections.Specialized.OrderedDictionary
     $od."Date"=(Get-Date).ToString("dddd d MMMM yyyy")
     $od."mot"="Date"
-    $s|Replace-String $od -unique|Write-host -Fore Green
-    $s|Replace-String $od|Write-host -Fore Green
+    $s|Edit-String $od -unique|Write-host -Fore Green
+    $s|Edit-String $od|Write-host -Fore Green
     
     Description
     -----------
@@ -456,7 +456,7 @@ Function Replace-String{
     #$od.'^\s*\#\s*Version\s*:(.*)$'=@{Replace=$Version;Options="IgnoreCase,MultiLine"} 
     $LongDatePattern=[System.Threading.Thread]::CurrentThread.CurrentCulture.DateTimeFormat.LongDatePattern
     $od.'(?im-s)^\s*\#\s*Date\s*:(.*)$'="# Date    : $(Get-Date -format $LongDatePattern)"
-    $S|Replace-String $od
+    $S|Edit-String $od
    
     Description
     -----------
@@ -499,19 +499,19 @@ rem ...
 "@
     $h=@{}
     $h."#SID#"="BaseTest"
-    $Result=$S|Replace-String $h -ReplaceInfo -SimpleReplace
+    $Result=$S|Edit-String $h -ReplaceInfo -SimpleReplace
     $Result|ft
     $Result.Replaces[0]|fl
     $Result|Set-Content C:\Temp\NewOrabase.cmd -Force
     Type C:\temp\NewOrabase.cmd
 #   En une ligne :     
-#    $S|Replace-String $h -ReplaceInfo -SimpleReplace|
+#    $S|Edit-String $h -ReplaceInfo -SimpleReplace|
 #     Set-Content C:\Temp\NewOrabase.cmd -Force
    
     Description
     -----------
     Ces instructions effectuent un remplacement simple dans la chaîne $S.
-    On utilise ici Replace-String pour générer un script batch à partir
+    On utilise ici Edit-String pour générer un script batch à partir
     d'un template (gabarit ou modèle de conception).
     Toutes les occurrences du texte '#SID#' sont remplacées par la chaîne 
     'BaseTest'. Le résultat de la fonction est un objet personnalisé de type
@@ -535,7 +535,7 @@ rem ...
         "trois" {"3"; break}
       }#switch
     }#$s
-    $S|Replace-String $h
+    $S|Edit-String $h
     $ofs=""
     
     Description
@@ -565,7 +565,7 @@ rem ...
     #Fichiers de test :
     # http://projets.developpez.com/projects/add-lib/files
     
-    cd "C:\Temp\Replace-String\TestReplace"
+    cd "C:\Temp\Edit-String\TestReplace"
      #Cherche et remplace dans tous les fichiers d'une arborescence, sauf les .bak
      #Chaque fichier est recopié en .bak avant les modifications
     Get-ChildItem "$PWD" *.ps1 -exclude *.bak -recurse| 
@@ -576,7 +576,7 @@ rem ...
        Copy-Item $CurrentFile $BackupFile 
        
        Get-Content $BackupFile|
-        Replace-String $Modifications|
+        Edit-String $Modifications|
         Set-Content -path $CurrentFile
        
         #compare le résultat à l'aide de Winmerge
@@ -600,7 +600,7 @@ rem ...
       $h."^$"={"Nouvelle description de la variable $($InputObject.Name)"}
        #PowerShell V2 FR
       $h."(^Nombre|^Indique|^Entraîne)(.*)$"='POWERSHELL $1$2'
-      $Result=$AllObjects|Replace-String $h -property "Description" -ReplaceInfo -Unique
+      $Result=$AllObjects|Edit-String $h -property "Description" -ReplaceInfo -Unique
     $AllObjects| Ft Name,Description|More  
 
     Description
@@ -633,7 +633,7 @@ rem ...
              Value=$values."$_"
            }#Property 
          }|
-         Replace-String @{"C:\\"="D:\"} -Property Value|
+         Edit-String @{"C:\\"="D:\"} -Property Value|
          Set-ItemProperty -name {$_.Name} -Whatif
      }#try
     finally 
@@ -658,10 +658,10 @@ rem ...
     correspondent à des noms de paramètres du cmdlet Set-ItemProperty qui 
     acceptent l'entrée de pipeline (ValueFromPipelineByPropertyName). 
 .   
-    Ensuite, à l'aide de Replace-String, on recherche et remplace dans la 
+    Ensuite, à l'aide de Edit-String, on recherche et remplace dans la 
     propriété 'Value' de chaque objet créé, les occurrences de 'C:\' par 
     'D:\'. 
-    Replace-String émet directement les objets vers le cmdlet 
+    Edit-String émet directement les objets vers le cmdlet 
     Set-ItemProperty.
     Et enfin, celui-ci lit les informations à mettre à jour à partir des 
     propriétés de l'objet personnalisé reçu.
@@ -678,14 +678,14 @@ rem ...
 .INPUTS
     System.Management.Automation.PSObject
      Vous pouvez diriger tout objet ayant une méthode ToString vers 
-     Replace-String.
+     Edit-String.
 
 .OUTPUTS
     System.String
     System.Object
     System.PSReplaceInfo 
 
-     Replace-String retourne tous les objets qu'il soient modifiés ou pas.
+     Edit-String retourne tous les objets qu'il soient modifiés ou pas.
 
 .NOTES
     Vous pouvez consulter la documentation Française sur les expressions
@@ -711,16 +711,14 @@ rem ...
 .
 .
     Il est possible d'utiliser la librairie de regex du projet PSCX :
-     "un deux deux trois"|Replace-String @{$PSCX:RegexLib.RepeatedWord="Deux"}
+     "un deux deux trois"|Edit-String @{$PSCX:RegexLib.RepeatedWord="Deux"}
      #renvoi
      #un deux trois
 .
 		Author:  Laurent Dardenne
-		Version:  1.1
-		Date: 22/08/2010
+		Version:  1.3
+		Date: 11/10/2016
 
-.LINK
-    http://projets.developpez.com/projects/add-libv2/wiki/Replace-String
 
 .COMPONENT
     expression régulière
@@ -1260,7 +1258,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
              #de cast lors de l'exécution interne de la recherche de la signature 
              #la plus adaptée (Distance Algorithm). 
              # cf. ([regex]"\d").Replace.OverloadDefinitions 
-             # "test 123"|Replace-String @{"\d"=get-date}
+             # "test 123"|Edit-String @{"\d"=get-date}
              # Error : Impossible de convertir l'argument « 1 » (valeur « 17/07/2010 13:31:56 ») de « Replace » 
              #  en type « System.Text.RegularExpressions.MatchEvaluator » 
              #
@@ -1270,7 +1268,7 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
              # - Conversions de DateTime en tout autre type sauf String.
              # ...
              #Autre solution :
-             # "test 123"|Replace-String @{"\d"=@(get-date)}
+             # "test 123"|Edit-String @{"\d"=@(get-date)}
              #Mais cette solution apporte un autre problème, dans ce cas on utilise plus la culture courante,
              # mais celle US, car le scriptblock est exécuté dans un contexte où les conversions de chaînes de 
              #caractères en dates se font en utilisant les informations de la classe .NET InvariantCulture.
@@ -1434,6 +1432,6 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
   }
   $PSCmdlet.WriteDebug("[Pipeline] Next object.")
  }#process
-}#Replace-String
+}#Edit-String
 
-new-alias rpls Replace-String  -description "Fonction auto-documentée Replace-String" -force 
+new-alias rpls Edit-String  -description "Fonction auto-documentée Edit-String" -force 
