@@ -35,6 +35,7 @@ nuspec 'DTW.PS.FileSystem' $DTWVersion -DevelopmentDependency {
 }
 
 'Replace-String','Lock-File','Remove-Conditionnal',
-'Show-BalloonTip','Test-BOMFile','Using-Culture'|% {
+'Show-BalloonTip','Test-BOMFile','Using-Culture',
+'New-FileNameTimeStamped'|% {
   Publish-Script -Path "$ProjectToolsVcs\$_.ps1" -Repository OttoMatt -NuGetApiKey $(throw "Todo apikey")
 }
