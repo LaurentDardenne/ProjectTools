@@ -1,4 +1,8 @@
-﻿$DTWVersion=(Import-ManifestData "$ProjectToolsVcs\Modules\DTW.PS.FileSystem\DTW.PS.FileSystem.psd1").ModuleVersion
+﻿Param(
+ $NuGetApiKey=$(throw "This script neeed a nu get apikey")
+)
+
+$DTWVersion=(Import-ManifestData "$ProjectToolsVcs\Modules\DTW.PS.FileSystem\DTW.PS.FileSystem.psd1").ModuleVersion
 $Source='https://www.myget.org/F/ottomatt/api/v2/package'
 
 nuspec 'DTW.PS.FileSystem' $DTWVersion -DevelopmentDependency {
@@ -34,8 +38,8 @@ nuspec 'DTW.PS.FileSystem' $DTWVersion -DevelopmentDependency {
    nuget push "$env:Temp\$PkgName.$PkgVersion.nupkg" -Source $source
 }
 
-'Replace-String','Lock-File','Remove-Conditionnal',
+'Edit-String','Lock-File','Remove-Conditionnal',
 'Show-BalloonTip','Test-BOMFile','Using-Culture',
 'New-FileNameTimeStamped'|% {
-  Publish-Script -Path "$ProjectToolsVcs\$_.ps1" -Repository OttoMatt -NuGetApiKey $(throw "Todo apikey")
+  Publish-Script -Path "$ProjectToolsVcs\$_.ps1" -Repository OttoMatt -NuGetApiKey $NuGetApiKey
 }
