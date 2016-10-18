@@ -724,14 +724,37 @@ param (
                              if ($Include.isPresent)
                              {
                                $FileName=$Matches.FileName.Trim()
-                               Write-Debug "Inclut le fichier $FileName"
+                               if (-not (Test-Path $FileName))
+                               {
+                                 $msg="Include - the file do not exist '$FileName'"
+                                 $ex=new-object System.Exception $msg
+                                 $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex, 
+                                                                                                       $msg, 
+                                                                                                       "ReadError",
+                                                                                                       $FileName 
+                                 $PSCmdlet.ThrowTerminatingError($ER) 
+                               }
+                               else
+                               {
+                                 try {
+                                    $IncludeContent=Get-Content $FileName -ReadCount 0 -Encoding:$Encoding
+                                 } catch {
+                                    $msg="Include - impossible to read the file '$FileName'"
+                                    $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $_, 
+                                                                                                        $msg, 
+                                                                                                        "ReadError",
+                                                                                                        $FileName 
+                                    $PSCmdlet.ThrowTerminatingError($ER) 
+                                 }   
+                               }
+                               Write-Debug "Inclut le fichier '$FileName'"
                                 #Lit le fichier, le transforme à son tour, puis l'envoi dans le pipe
                                 #Imbrication d'INCLUDE possible
                                 #Exécution dans une nouvelle portée 
                                if ($Clean.isPresent)
                                {
                                   Write-Debug "Recurse Remove-Conditionnal -Clean"
-                                  $NestedResult= Get-Content $FileName -ReadCount 0 -Encoding:$Encoding|
+                                  $NestedResult= $IncludeContent|
                                                   Remove-Conditionnal -Clean -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
                                   #Ici on émet le contenu du tableau et pas le tableau reçu
                                   #Seul le résultat final est renvoyé en tant que tableau 
@@ -742,12 +765,12 @@ param (
                                   Write-Debug "Recurse Remove-Conditionnal $ConditionnalsKeyWord"
                                   if ($isConditionnalsKeyWord)
                                   {
-                                    $NestedResult= Get-Content $FileName -ReadCount 0 -Encoding:$Encoding|
+                                    $NestedResult= $IncludeContent|
                                                     Remove-Conditionnal -ConditionnalsKeyWord $ConditionnalsKeyWord -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
                                   }
                                   else
                                   {
-                                    $NestedResult= Get-Content $FileName -ReadCount 0 -Encoding:$Encoding|
+                                    $NestedResult= $IncludeContent|
                                                     Remove-Conditionnal -Remove:$Remove -Include:$Include -UnComment:$UnComment -Container:$FileName
                                   }
                                                                                                                                           
