@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 1.3
+.VERSION 1.5
 .GUID b008c544-06e1-4a24-80df-f7a3e55a479b
 .AUTHOR Laurent Dardenne
 .COMPANYNAME
@@ -12,7 +12,7 @@
 .EXTERNALMODULEDEPENDENCIES
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
-.RELEASENOTES  version 1.3  27 janvier 2014
+.RELEASENOTES  version 1.5  18 octobre 2016   fix Uncomment directive
 
 .DESCRIPTION Supprime dans un fichier source toutes les lignes placées entre deux directives de 'parsing conditionnal', tels que #<DEFINE %DEBUG%> et  #<UNDEF %DEBUG%>. Il est également possible d'inclure des fichiers,  de décommenter des lignes de commentaires ou de supprimer des lignes. 
 #>
@@ -71,15 +71,15 @@ Function Remove-Conditionnal {
     La directive REMOVE doit être placée en fin de ligne  :
        Write-Debug 'Test' #<%REMOVE%> 
 .
-    La directive UNCOMMENT doit être placée en fin de ligne  :
-       #[FunctionalType('PathFile')] #<%UNCOMMENT%>
+    La directive UNCOMMENT doit être placée en début de ligne  :
+       #<%UNCOMMENT%>[FunctionalType('PathFile')] 
        ...
-       #Write-Debug 'Test' #<%UNCOMMENT%>
+       #<%UNCOMMENT%>Write-Debug 'Test'
 .       
     Ces lignes seront tranformées en : 
        [FunctionalType('PathFile')]
        ...
-       Write-Debug 'Test
+       Write-Debug 'Test'
 .
       Le directive INCLUDE insére le contenu d'un fichier externe.
        Write-Host 'Code avant'
@@ -109,7 +109,7 @@ Function Remove-Conditionnal {
     Le nom de directive 'NOM' et distinct de '1NOM',de 'NOM2' ou de 'PRENOM'.     
 
 .PARAMETER Container
-    Contient le nom de la source de données d'où ont été extraite les ligne du 
+    Contient le nom de la source de données d'où ont été extraite les lignes du 
     code source à transformer.
     En cas de traitement de la directive INCLUDE, ce paramètre contiendra 
     le nom du fichier déclaré dans cette directive.
@@ -546,16 +546,31 @@ param (
      $ConditionnalsKeyWord=$ConditionnalsKeyWord|Select -Unique
      $RegexConditionnalsKeyWord="$ConditionnalsKeyWord"
      
-     $ConditionnalsKeyWord|
-      Where {$Directive=$_; $Directive.Contains(' ')}|
-      Foreach {Throw "Une directive contient des espaces :'$Directive'" }
+     foreach ($Directive in $ConditionnalsKeyWord) {
+       if ($Directive.Contains(' '))
+       { 
+         $msg="Une directive contient des espaces."
+         $ex=new-object System.Exception $msg
+         $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $Ex, 
+                                                                              $msg, 
+                                                                              "InvalidArgument",
+                                                                              $Directive 
+         $PSCmdlet.ThrowTerminatingError($ER)
+       }            
+    }
 
      $ofs=','
      $KeyWordsNotAllowed=@(Compare-object $ConditionnalsKeyWord $ReservedKeyWord -IncludeEqual -PassThru| Where {$_.SideIndicator -eq "=="})
      if ($KeyWordsNotAllowed.Count -gt 0)
      { 
         $ofs=','
-        Throw "Ces noms de directive sont réservées : ${KeyWordsNotAllowed}.Utilisez le paramétre associé."
+        $msg="Ces noms de directive sont réservées. Utilisez le paramétre associé."
+        $ex=new-object System.Exception $msg
+        $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $Ex, 
+                                                                              $msg, 
+                                                                              "InvalidArgument",
+                                                                              $KeyWordsNotAllowed 
+        $PSCmdlet.ThrowTerminatingError($ER)        
      }     
    }
    $Directives=New-Object System.Collections.Stack
@@ -565,7 +580,7 @@ param (
  Process { 
    $LineNumber=0; 
    $isDirectiveBloc=$False
-
+   Write-debug "InputObject.Count: $($InputObject.Count)"
    $Result=$InputObject|
      Foreach-Object { 
        $LineNumber++
@@ -597,7 +612,7 @@ param (
                             }
                             Write-Debug "Filtre en cours : $isFilter"  
                               #Mémorise la directive DEFINE, 
-                              #le numéro de ligne du ficher courant et 
+                              #le numéro de ligne du fichier courant et 
                               #l'état du filtrage en cours.
                             $O=New-ParsingDirective $CurrentDirective $LineNumber $isFilter 
                             $Directives.Push($O)
@@ -625,13 +640,29 @@ param (
                                $LastDirective=$Last.Name
                              
                                if ($LastDirective -ne $FoundDirective)
-                               { Throw "Parsing annulé.`r`n$Container`r`nLes déclarations des directives '$Last' et '${FoundDirective}:$LineNumber' ne sont pas imbriquées."}
+                               { 
+                                   $msg= "Parsing annulé.`r`n$Container`r`nLes déclarations des directives '$Last' et '${FoundDirective}:$LineNumber' ne sont pas imbriquées."
+                                   $ex=new-object System.Exception $msg
+                                   $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex, 
+                                                                                                        $msg, 
+                                                                                                        "ParserError",
+                                                                                                        $Last
+                                   $PSCmdlet.ThrowTerminatingError($ER)                                   
+                               }
                                Write-Debug "Pop $LastDirective"
                                [void]$Directives.Pop() 
                             }
                             
                             if ($isDirectiveOrphan)
-                            { Throw "Parsing annulé.`r`n$Container`r`nLa directive #<UNDEF %${FoundDirective}%> n'est pas associée à une directive DEFINE ('${FoundDirective}:$LineNumber')"}
+                            { 
+                                $msg="Parsing annulé.`r`n$Container`r`nLa directive #<UNDEF %${FoundDirective}%> n'est pas associée à une directive DEFINE ('${FoundDirective}:$LineNumber')"
+                                $ex=new-object System.Exception $msg
+                                $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex, 
+                                                                                                       $msg, 
+                                                                                                       "ParserError",
+                                                                                                       $FoundDirective 
+                                $PSCmdlet.ThrowTerminatingError($ER)     
+                            }
                             
                             if ($Directives.Count -eq 0)
                             {
@@ -674,12 +705,12 @@ param (
                              if ($UnComment.isPresent)
                              { 
                                Write-Debug "`tUNCOMMENT  Line"
-                               $Line -replace "^\s*#*<%UNCOMMENT%>",''
+                               $Line -replace "^(\s*)#*<%UNCOMMENT%>(.*)",'$1$2'
                              }
                              elseif ($Clean.isPresent)
                              { 
                                Write-Debug "`tRemove UNCOMMENT directive"
-                               $Line -replace "^\s*#*<%UNCOMMENT%>(.*)",'#$1'
+                               $Line -replace "^(\s*)#*<%UNCOMMENT%>(.*)",'$1#$2'
                              } 
                              else
                              { $Line }
@@ -739,10 +770,17 @@ param (
       }#Switch
    }#Foreach
    
+   Write-Debug "Directives.Count: $($Directives.Count)"
    if ($Directives.Count -gt 0) 
    { 
      $oldofs,$ofs=$ofs,','
-     Write-Error "Parsing annulé.`r`n$Container`r`nLes directives suivantes n'ont pas de mot clé de fin : $Directives" 
+     $msg= "Parsing annulé.`r`n$Container`r`nLes directives suivantes n'ont pas de mot clé de fin : $Directives" 
+     $ex=new-object System.Exception $msg
+     $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex, 
+                                                                        $msg, 
+                                                                        "ParserError",
+                                                                        $Directives
+     $PSCmdlet.ThrowTerminatingError($ER)       
      $ofs=$oldofs
   }
    else 
