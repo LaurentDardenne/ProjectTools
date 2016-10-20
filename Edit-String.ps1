@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 1.3.0
+.VERSION 1.4.0
 .GUID 9fcc3ac5-5135-4c0c-bed3-f0e8e7aedb84
 .AUTHOR Laurent Dardenne
 .COMPANYNAME
@@ -1433,5 +1433,3 @@ On remplace $Key avec $(Convert-DictionnaryEntry $Parameters)
   $PSCmdlet.WriteDebug("[Pipeline] Next object.")
  }#process
 }#Edit-String
-
-new-alias rpls Edit-String  -description "Fonction auto-documentée Edit-String" -force 
