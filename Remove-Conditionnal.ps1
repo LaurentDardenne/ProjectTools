@@ -17,6 +17,7 @@
 .DESCRIPTION Supprime dans un fichier source toutes les lignes placées entre deux directives de 'parsing conditionnal', tels que #<DEFINE %DEBUG%> et  #<UNDEF %DEBUG%>. Il est également possible d'inclure des fichiers,  de décommenter des lignes de commentaires ou de supprimer des lignes. 
 #>
 
+#todo rename : Set-Template
 Function Remove-Conditionnal {
 <#
 .SYNOPSIS
@@ -552,7 +553,7 @@ param (
          $msg="Une directive contient des espaces."
          $ex=new-object System.Exception $msg
          $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $Ex, 
-                                                                              $msg, 
+                                                                              'InvalidDirectiveName', 
                                                                               "InvalidArgument",
                                                                               $Directive 
          $PSCmdlet.ThrowTerminatingError($ER)
@@ -567,7 +568,7 @@ param (
         $msg="Ces noms de directive sont réservées. Utilisez le paramétre associé."
         $ex=new-object System.Exception $msg
         $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $Ex, 
-                                                                              $msg, 
+                                                                              'UseReservedDirectiveName', 
                                                                               "InvalidArgument",
                                                                               $KeyWordsNotAllowed 
         $PSCmdlet.ThrowTerminatingError($ER)        
@@ -644,7 +645,7 @@ param (
                                    $msg= "Parsing annulé.`r`n$Container`r`nLes déclarations des directives '$Last' et '${FoundDirective}:$LineNumber' ne sont pas imbriquées."
                                    $ex=new-object System.Exception $msg
                                    $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex, 
-                                                                                                        $msg, 
+                                                                                                        'DirectivesIncorrectlyNested', 
                                                                                                         "ParserError",
                                                                                                         $Last
                                    $PSCmdlet.ThrowTerminatingError($ER)                                   
@@ -658,7 +659,7 @@ param (
                                 $msg="Parsing annulé.`r`n$Container`r`nLa directive #<UNDEF %${FoundDirective}%> n'est pas associée à une directive DEFINE ('${FoundDirective}:$LineNumber')"
                                 $ex=new-object System.Exception $msg
                                 $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex, 
-                                                                                                       $msg, 
+                                                                                                       'OrphanDirective', 
                                                                                                        "ParserError",
                                                                                                        $FoundDirective 
                                 $PSCmdlet.ThrowTerminatingError($ER)     
@@ -729,7 +730,7 @@ param (
                                  $msg="Include - the file do not exist '$FileName'"
                                  $ex=new-object System.Exception $msg
                                  $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex, 
-                                                                                                       $msg, 
+                                                                                                       'IncludedFileNotFound', 
                                                                                                        "ReadError",
                                                                                                        $FileName 
                                  $PSCmdlet.ThrowTerminatingError($ER) 
@@ -741,7 +742,7 @@ param (
                                  } catch {
                                     $msg="Include - impossible to read the file '$FileName'"
                                     $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $_, 
-                                                                                                        $msg, 
+                                                                                                        'UnableToReadIncludedFile', 
                                                                                                         "ReadError",
                                                                                                         $FileName 
                                     $PSCmdlet.ThrowTerminatingError($ER) 
@@ -800,7 +801,7 @@ param (
      $msg= "Parsing annulé.`r`n$Container`r`nLes directives suivantes n'ont pas de mot clé de fin : $Directives" 
      $ex=new-object System.Exception $msg
      $ER= New-Object -Typename System.Management.Automation.ErrorRecord -Argumentlist $ex, 
-                                                                        $msg, 
+                                                                        'IncompletDirective', 
                                                                         "ParserError",
                                                                         $Directives
      $PSCmdlet.ThrowTerminatingError($ER)       

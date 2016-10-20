@@ -261,14 +261,14 @@ Write-Debug "Suite hors define"
        Write-Host 'Code aprés'
 '@ | Set-Content -Path "$PathSource\TestInclude1.new.ps1" -Force -Encoding UTF8
 
-#todo
+
 @"
        Write-Host 'Code avant'
        #<INCLUDE %'$PathSource\NotExist.ps1'%>
        Write-Host 'Code aprés'
 "@ | Set-Content -Path "$PathSource\TestInclude2.ps1" -Force -Encoding UTF8              
 
-#todo
+
 @'
        Write-Host 'Code avant'
        #<INCLUDE %'Z:\FileInclude.ps1'%>
