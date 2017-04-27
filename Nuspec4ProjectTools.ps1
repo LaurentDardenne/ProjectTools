@@ -38,8 +38,6 @@ nuspec 'DTW.PS.FileSystem' $DTWVersion -DevelopmentDependency {
    nuget push "$env:Temp\$PkgName.$PkgVersion.nupkg" -Source $source
 }
 
-'Edit-String','Lock-File','Remove-Conditionnal',
-'Show-BalloonTip','Test-BOMFile','Using-Culture',
-'New-FileNameTimeStamped'|% {
+'Lock-File','Using-Culture','New-FileNameTimeStamped'|% {
   Publish-Script -Path "$ProjectToolsVcs\$_.ps1" -Repository OttoMatt -NuGetApiKey $NuGetApiKey
 }
